@@ -23,10 +23,8 @@ const CameraComponent = () => {
     };
 
     if (!stream) {
-      console.log("NO STREAM");
       getUserMedia();
     } else {
-      console.log("Stream!");
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }

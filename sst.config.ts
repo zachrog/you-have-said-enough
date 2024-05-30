@@ -1,8 +1,10 @@
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="./.sst/platform/config.d.ts" />
 
 export default $config({
   app(input) {
     return {
+      providers: { aws: true },
       name: "you-have-said-enough",
       removal: input?.stage === "production" ? "retain" : "remove",
       home: "aws",
@@ -11,9 +13,9 @@ export default $config({
   async run() {
     new sst.aws.StaticSite("Zuumb", {
       build: {
-        commad:"npm run build",
-        output:"dist"
-      }
+        commad: "npm run build",
+        output: "dist",
+      },
     });
   },
 });

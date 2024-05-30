@@ -4,10 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "vite",
+    "deploy": "sst deploy"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",
@@ -16,10 +17,12 @@
     "lucide-react": "^0.354.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "sst": "ion",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@types/aws-lambda": "8.10.138",
     "@types/node": "^20.11.25",
     "@types/react": "^18.2.56",
     "@types/react-dom": "^18.2.19",

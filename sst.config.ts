@@ -16,6 +16,10 @@ export default $config({
         command: "npm run build",
         output: "dist",
       },
+      domain: {
+        name: "zuumb.com",
+        redirects: ["www.zuumb.com"],
+      },
     });
   },
 });

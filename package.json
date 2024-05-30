@@ -8,7 +8,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "start": "vite",
-    "deploy": "sst deploy"
+    "deploy": "sst deploy --stage=prod"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",

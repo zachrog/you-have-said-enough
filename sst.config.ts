@@ -13,7 +13,7 @@ export default $config({
   async run() {
     new sst.aws.StaticSite("Zuumb", {
       build: {
-        commad: "npm run build",
+        command: "npm run build",
         output: "dist",
       },
     });

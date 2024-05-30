@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
+import { Button } from "./components/ui/button";
+import {CopyTextComponent} from "./textComponent"
 
 function App() {
 
@@ -7,13 +9,27 @@ function App() {
 
   return (
     <>
-      <LocalVideo rTCPeerConnnection={rTCPeerConnnection}></LocalVideo>
-      <RemoteVideo rTCPeerConnnection={rTCPeerConnnection}></RemoteVideo>
+      <LocalVideoComponent rTCPeerConnnection={rTCPeerConnnection}></LocalVideoComponent>
+      <RemoteVideoComponent rTCPeerConnnection={rTCPeerConnnection}></RemoteVideoComponent>
+      <RTCOfferComponent rTCPeerConnnection={rTCPeerConnnection}></RTCOfferComponent>
     </>
   );
 }
 
-const LocalVideo = ({rTCPeerConnnection}: {rTCPeerConnnection: RTCPeerConnection}) => {
+const RTCOfferComponent =  ({rTCPeerConnnection}: {rTCPeerConnnection: RTCPeerConnection}) => {
+  const [offer, setOffer] = useState<string>("");
+  
+  return <>
+  <Button onClick={async () => {
+    
+    const new_offer = await rTCPeerConnnection.createOffer();
+    setOffer(JSON.stringify(new_offer));
+    }}>Create Offer</Button>
+    <CopyTextComponent text={offer}></CopyTextComponent>
+  </>
+}
+
+const LocalVideoComponent = ({rTCPeerConnnection}: {rTCPeerConnnection: RTCPeerConnection}) => {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -55,7 +71,7 @@ const LocalVideo = ({rTCPeerConnnection}: {rTCPeerConnnection: RTCPeerConnection
   );
 };
 
-const RemoteVideo = ({rTCPeerConnnection}: {rTCPeerConnnection: RTCPeerConnection}) => {
+const RemoteVideoComponent = ({rTCPeerConnnection}: {rTCPeerConnnection: RTCPeerConnection}) => {
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -69,8 +85,6 @@ const RemoteVideo = ({rTCPeerConnnection}: {rTCPeerConnnection: RTCPeerConnectio
           remoteStream.addTrack(track)
         })
       }
-
-      rTCPeerConnnection.createOffer().then((offerDescription) => {console.log(offerDescription)});
 
       if (videoRef.current) {
         videoRef.current.srcObject = remoteStream;

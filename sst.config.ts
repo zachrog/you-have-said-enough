@@ -21,5 +21,12 @@ export default $config({
         redirects: ["www.zuumb.com"],
       },
     });
+    new sst.aws.Dynamo("Zuumbdb", {
+      fields: {
+        pk: "string",
+        sk: "string",
+      },
+      primaryIndex: { hashKey: "pk", rangeKey: "sk" },
+    });
   },
 });

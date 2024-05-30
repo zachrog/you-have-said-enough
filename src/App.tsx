@@ -23,6 +23,7 @@ const RTCOfferComponent =  ({rTCPeerConnnection}: {rTCPeerConnnection: RTCPeerCo
   <Button onClick={async () => {
     
     const new_offer = await rTCPeerConnnection.createOffer();
+    await rTCPeerConnnection.setLocalDescription(new_offer);
     setOffer(JSON.stringify(new_offer));
     }}>Create Offer</Button>
     <CopyTextComponent text={offer}></CopyTextComponent>

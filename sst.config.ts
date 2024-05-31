@@ -29,7 +29,13 @@ export default $config({
       primaryIndex: { hashKey: "pk", rangeKey: "sk" },
     });
 
-    const api = new sst.aws.ApiGatewayV2("ZuumbApi");
-    api.route("ANY /{proxy+}", "server/src/api.api");
+    const httpApi = new sst.aws.ApiGatewayV2("ZuumbApi");
+    httpApi.route("ANY /{proxy+}", "server/src/httpApi.api");
+
+    const socketApi = new sst.aws.ApiGatewayWebSocket("MyApi");
+
+    socketApi.route("$connect", "server/src/socketApi.connect");
+    socketApi.route("$disconnect", "server/src/socketApi.disconnect");
+    socketApi.route("$default", "server/src/socketApi.default");
   },
 });

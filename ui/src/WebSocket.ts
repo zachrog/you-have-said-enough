@@ -1,8 +1,9 @@
 const webSocket = createWebSocket();
 
-// type webSocketMessage = {
-//   text: string;
-// };
+export type WebSocketMessage = {
+  action: string;
+  data: any;
+};
 
 export function createWebSocket() {
   const webSocketUrl = import.meta.env.VITE_WEBSOCKET_URL;
@@ -32,6 +33,6 @@ export function closeWebSocket() {
   webSocket.close();
 }
 
-export function sendWebSocket(message: string) {
-  webSocket.send(message);
+export function sendWebSocket(message: WebSocketMessage) {
+  webSocket.send(JSON.stringify(message));
 }

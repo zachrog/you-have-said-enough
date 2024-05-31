@@ -31,9 +31,8 @@ const RTCOfferComponent =  ({rTCPeerConnnection}: {rTCPeerConnnection: RTCPeerCo
     
     const newOffer = await rTCPeerConnnection.createOffer();
     await rTCPeerConnnection.setLocalDescription(newOffer);
-    const strNewOffer = JSON.stringify(newOffer)
-    sendWebSocket(strNewOffer)
-    setOffer(strNewOffer);
+    sendWebSocket({action:"storeOffer", data:newOffer})
+    setOffer(JSON.stringify(newOffer));
     }}>Create Offer</Button>
     <CopyTextComponent text={offer}></CopyTextComponent>
   </>

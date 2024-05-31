@@ -2,13 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { Button } from "./components/ui/button";
 import {CopyTextComponent} from "./textComponent"
-import { createWebSocket } from "./WebSocket";
+import { closeWebSocket, createWebSocket, sendWebSocket } from "./WebSocket";
 
 function App() {
 
   useEffect(() => {
-    const webSocket = createWebSocket();
-    return () => {webSocket.close()};
+    createWebSocket();
+    return () => {closeWebSocket()};
   }, []);
   // console.log("hello?")
 
@@ -29,9 +29,11 @@ const RTCOfferComponent =  ({rTCPeerConnnection}: {rTCPeerConnnection: RTCPeerCo
   return <>
   <Button onClick={async () => {
     
-    const new_offer = await rTCPeerConnnection.createOffer();
-    await rTCPeerConnnection.setLocalDescription(new_offer);
-    setOffer(JSON.stringify(new_offer));
+    const newOffer = await rTCPeerConnnection.createOffer();
+    await rTCPeerConnnection.setLocalDescription(newOffer);
+    const strNewOffer = JSON.stringify(newOffer)
+    sendWebSocket(strNewOffer)
+    setOffer(strNewOffer);
     }}>Create Offer</Button>
     <CopyTextComponent text={offer}></CopyTextComponent>
   </>

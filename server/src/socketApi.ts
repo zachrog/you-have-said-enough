@@ -1,5 +1,6 @@
 import { APIGatewayProxyWebsocketEventV2 } from "aws-lambda";
 import { storeConnection } from "./storeConnection";
+import { removeConnection } from "./removeConnection";
 
 type WebSocketReturn = {
   statusCode: number;
@@ -18,6 +19,7 @@ export async function disconnectHandler(
   event: APIGatewayProxyWebsocketEventV2
 ): Promise<WebSocketReturn> {
   console.log("disconnect event: ", event);
+  await removeConnection(event.requestContext.connectionId);
   return { statusCode: 200, body: "hola" };
 }
 

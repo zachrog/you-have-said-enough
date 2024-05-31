@@ -2,8 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { Button } from "./components/ui/button";
 import {CopyTextComponent} from "./textComponent"
+import { createWebSocket } from "./WebSocket";
 
 function App() {
+
+  useEffect(() => {
+    const webSocket = createWebSocket();
+    return () => {webSocket.close()};
+  }, []);
+  // console.log("hello?")
 
   const rTCPeerConnnection = new RTCPeerConnection(servers);
 

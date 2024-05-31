@@ -11,14 +11,23 @@ export default $config({
     };
   },
   async run() {
+    const socketApi = new sst.aws.ApiGatewayWebSocket("ZuumbWebSocketApi");
+
+    socketApi.route("$connect", "server/src/socketApi.connectHandler");
+    socketApi.route("$disconnect", "server/src/socketApi.disconnectHandler");
+    socketApi.route("$default", "server/src/socketApi.defaultHandler");
+
     new sst.aws.StaticSite("Zuumb", {
       build: {
         command: "npm run build",
-        output: "dist",
+        output: "ui/dist",
       },
       domain: {
         name: "zuumb.com",
         redirects: ["www.zuumb.com"],
+      },
+      environment: {
+        VITE_WEBSOCKET_URL: socketApi.url,
       },
     });
     new sst.aws.Dynamo("Zuumbdb", {
@@ -31,11 +40,5 @@ export default $config({
 
     const httpApi = new sst.aws.ApiGatewayV2("ZuumbApi");
     httpApi.route("ANY /{proxy+}", "server/src/httpApi.api");
-
-    const socketApi = new sst.aws.ApiGatewayWebSocket("MyApi");
-
-    socketApi.route("$connect", "server/src/socketApi.connect");
-    socketApi.route("$disconnect", "server/src/socketApi.disconnect");
-    socketApi.route("$default", "server/src/socketApi.default");
   },
 });

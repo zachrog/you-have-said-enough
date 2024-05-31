@@ -1,4 +1,5 @@
 import { APIGatewayProxyWebsocketEventV2 } from "aws-lambda";
+import { storeConnection } from "./storeConnection";
 
 type WebSocketReturn = {
   statusCode: number;
@@ -9,7 +10,8 @@ export async function connectHandler(
   event: APIGatewayProxyWebsocketEventV2
 ): Promise<WebSocketReturn> {
   console.log("connect event: ", event);
-  return { statusCode: 200, body: "hola" };
+  await storeConnection(event.requestContext.connectionId);
+  return { statusCode: 200, body: "storing connection id" };
 }
 
 export async function disconnectHandler(
@@ -23,5 +25,6 @@ export async function defaultHandler(
   event: APIGatewayProxyWebsocketEventV2
 ): Promise<WebSocketReturn> {
   console.log("default event: ", event);
+
   return { statusCode: 200, body: "hola" };
 }

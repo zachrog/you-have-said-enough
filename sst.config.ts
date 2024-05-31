@@ -11,11 +11,38 @@ export default $config({
     };
   },
   async run() {
+    const dynamoDb = new sst.aws.Dynamo("Zuumbdb", {
+      fields: {
+        pk: "string",
+        sk: "string",
+      },
+      primaryIndex: { hashKey: "pk", rangeKey: "sk" },
+    });
+    const dbName = dynamoDb.name;
+
     const socketApi = new sst.aws.ApiGatewayWebSocket("ZuumbWebSocketApi");
 
-    socketApi.route("$connect", "server/src/socketApi.connectHandler");
-    socketApi.route("$disconnect", "server/src/socketApi.disconnectHandler");
-    socketApi.route("$default", "server/src/socketApi.defaultHandler");
+    socketApi.route("$connect", {
+      handler: "server/src/socketApi.connectHandler",
+      environment: {
+        VITE_DBNAME: dbName,
+      },
+      permissions: [{ actions: ["dynamodb:*"], resources: ["*"] }],
+    });
+    socketApi.route("$disconnect", {
+      handler: "server/src/socketApi.disconnectHandler",
+      environment: {
+        VITE_DBNAME: dbName,
+      },
+      permissions: [{ actions: ["dynamodb:*"], resources: ["*"] }],
+    });
+    socketApi.route("$default", {
+      handler: "server/src/socketApi.defaultHandler",
+      environment: {
+        VITE_DBNAME: dbName,
+      },
+      permissions: [{ actions: ["dynamodb:*"], resources: ["*"] }],
+    });
 
     new sst.aws.StaticSite("Zuumb", {
       build: {
@@ -29,13 +56,6 @@ export default $config({
       environment: {
         VITE_WEBSOCKET_URL: socketApi.url,
       },
-    });
-    new sst.aws.Dynamo("Zuumbdb", {
-      fields: {
-        pk: "string",
-        sk: "string",
-      },
-      primaryIndex: { hashKey: "pk", rangeKey: "sk" },
     });
 
     const httpApi = new sst.aws.ApiGatewayV2("ZuumbApi");

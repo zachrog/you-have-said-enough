@@ -28,5 +28,8 @@ export default $config({
       },
       primaryIndex: { hashKey: "pk", rangeKey: "sk" },
     });
+
+    const api = new sst.aws.ApiGatewayV2("ZuumbApi");
+    api.route("ANY /{proxy+}", "server/src/api.api");
   },
 });

@@ -84,6 +84,7 @@ const RemoteVideoComponent = () => {
       setRemoteStream(new MediaStream());
     } else {
       rTCPeerConnnection.ontrack = (event) => {
+        console.log("Remote Video Component receiving new track");
         event.streams[0].getTracks().forEach((track) => {
           remoteStream.addTrack(track);
         });

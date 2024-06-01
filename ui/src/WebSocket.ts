@@ -31,12 +31,13 @@ export function createWebSocket() {
         );
         const answer = await rTCPeerConnnection.createAnswer();
         await rTCPeerConnnection.setLocalDescription(answer);
-
         sendWebSocket({ action: "storeAnswer", data: answer });
         break;
       case "newAnswer":
         console.log("got answer");
-        await rTCPeerConnnection.setRemoteDescription(message.data);
+        await rTCPeerConnnection.setRemoteDescription(
+          new RTCSessionDescription(message.data)
+        );
 
         break;
       default:

@@ -26,6 +26,7 @@ export default $config({
       handler: "server/src/socketApi.connectHandler",
       environment: {
         VITE_DBNAME: dbName,
+        VITE_WEBSOCKET_URL: socketApi.url,
       },
       permissions: [{ actions: ["dynamodb:*"], resources: ["*"] }],
     });
@@ -33,6 +34,7 @@ export default $config({
       handler: "server/src/socketApi.disconnectHandler",
       environment: {
         VITE_DBNAME: dbName,
+        VITE_WEBSOCKET_URL: socketApi.url,
       },
       permissions: [{ actions: ["dynamodb:*"], resources: ["*"] }],
     });
@@ -40,6 +42,7 @@ export default $config({
       handler: "server/src/socketApi.defaultHandler",
       environment: {
         VITE_DBNAME: dbName,
+        VITE_WEBSOCKET_URL: socketApi.url,
       },
       permissions: [{ actions: ["dynamodb:*"], resources: ["*"] }],
     });

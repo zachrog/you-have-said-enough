@@ -2,7 +2,7 @@ import { APIGatewayProxyWebsocketEventV2 } from "aws-lambda";
 import { storeConnection } from "./storeConnection";
 import { removeConnection } from "./removeConnection";
 import { WebSocketMessage } from "../../ui/src/WebSocket";
-import { storeOffer } from "./storeOffer";
+import { storeOffer } from "./offers";
 
 type WebSocketReturn = {
   statusCode: number;

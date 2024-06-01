@@ -11,6 +11,7 @@
     "deploy": "sst deploy --stage=prod"
   },
   "dependencies": {
+    "@aws-sdk/client-apigatewaymanagementapi": "^3.588.0",
     "@aws-sdk/client-dynamodb": "^3.588.0",
     "@aws-sdk/lib-dynamodb": "^3.588.0",
     "@radix-ui/react-slot": "^1.0.2",

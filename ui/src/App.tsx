@@ -77,7 +77,9 @@ const LocalVideoComponent = () => {
 
 const RemoteVideoComponent = () => {
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+  const [rerender, setRerender] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
+  console.log("RemoteVideoComponent rerender");
 
   useEffect(() => {
     if (!remoteStream) {
@@ -108,6 +110,7 @@ const RemoteVideoComponent = () => {
     <div>
       <h1>Remote Component</h1>
       <video className="h-300 w-900" ref={videoRef} autoPlay playsInline />
+      <Button onClick={() => setRerender(rerender + 1)}>Rerender!</Button>
     </div>
   );
 };

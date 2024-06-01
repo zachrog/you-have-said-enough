@@ -3,16 +3,17 @@ import "./App.css";
 import { Button } from "./components/ui/button";
 import {CopyTextComponent} from "./textComponent"
 import { closeWebSocket, createWebSocket, sendWebSocket } from "./WebSocket";
+import { rTCPeerConnnection } from "./WebSocket";
+
 
 function App() {
 
-  useEffect(() => {
-    createWebSocket();
-    return () => {closeWebSocket()};
-  }, []);
+  // useEffect(() => {
+  //   createWebSocket();
+  //   return () => {closeWebSocket()};
+  // }, []);
   // console.log("hello?")
 
-  const rTCPeerConnnection = new RTCPeerConnection(servers);
 
   return (
     <>
@@ -117,13 +118,6 @@ const RemoteVideoComponent = ({rTCPeerConnnection}: {rTCPeerConnnection: RTCPeer
   );
 };
 
-const servers = {
-  iceServers: [
-    {
-      urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"],
-    },
-  ],
-  iceCandidatePoolSize: 10,
-};
+
 
 export default App;

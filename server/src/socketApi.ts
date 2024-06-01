@@ -3,6 +3,7 @@ import { storeConnection } from "./storeConnection";
 import { removeConnection } from "./removeConnection";
 import { WebSocketMessage } from "../../ui/src/WebSocket";
 import { storeOffer } from "./offers";
+import { broadcastToRoom } from "./broadcastToRoom";
 
 type WebSocketReturn = {
   statusCode: number;
@@ -35,6 +36,12 @@ export async function defaultHandler(
       await storeOffer({
         connectionId: event.requestContext.connectionId,
         offer: message.data,
+      });
+      break;
+    case "storeAnswer":
+      await broadcastToRoom({
+        myConnectionId: event.requestContext.connectionId,
+        message: { action: "newAnswer", data: message.data },
       });
       break;
     default:

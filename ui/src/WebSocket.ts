@@ -1,3 +1,13 @@
+const servers = {
+  iceServers: [
+    {
+      urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"],
+    },
+  ],
+  iceCandidatePoolSize: 10,
+};
+
+export const rTCPeerConnnection = new RTCPeerConnection(servers);
 const webSocket = createWebSocket();
 
 export type WebSocketMessage = {
@@ -18,8 +28,29 @@ export function createWebSocket() {
     console.log("on error : ", event);
   };
 
-  newWebSocket.onmessage = (event) => {
+  newWebSocket.onmessage = async (event) => {
     console.log("bitch we socket :", event);
+    const message: WebSocketMessage = JSON.parse(event.data);
+    switch (message.action) {
+      case "newOffer":
+        rTCPeerConnnection.setRemoteDescription(
+          new RTCSessionDescription(message.data)
+        );
+        const answer = await rTCPeerConnnection.createAnswer();
+        await rTCPeerConnnection.setLocalDescription(answer);
+
+        sendWebSocket({ action: "storeAnswer", data: answer });
+        // .send({ answer: answer });
+        break;
+      case "newAnswer":
+        console.log("got answer");
+        await rTCPeerConnnection.setRemoteDescription(message.data);
+
+        break;
+      default:
+        break;
+    }
+    //
   };
 
   newWebSocket.onopen = (event) => {

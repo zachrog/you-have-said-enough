@@ -1,45 +1,41 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { Button } from "./components/ui/button";
-import {CopyTextComponent} from "./textComponent"
-import { closeWebSocket, createWebSocket, sendWebSocket } from "./WebSocket";
-import { rTCPeerConnnection } from "./WebSocket";
-
+import { CopyTextComponent } from "./components/textComponent";
+import { sendWebSocket } from "./WebSocket";
+import { rTCPeerConnnection } from "@/rtcPeerConnection";
 
 function App() {
-
-  // useEffect(() => {
-  //   createWebSocket();
-  //   return () => {closeWebSocket()};
-  // }, []);
-  // console.log("hello?")
-
-
   return (
     <>
-      <LocalVideoComponent rTCPeerConnnection={rTCPeerConnnection}></LocalVideoComponent>
-      <RemoteVideoComponent rTCPeerConnnection={rTCPeerConnnection}></RemoteVideoComponent>
-      <RTCOfferComponent rTCPeerConnnection={rTCPeerConnnection}></RTCOfferComponent>
+      <LocalVideoComponent></LocalVideoComponent>
+      <RemoteVideoComponent></RemoteVideoComponent>
+      <RTCOfferComponent></RTCOfferComponent>
     </>
   );
 }
 
-const RTCOfferComponent =  ({rTCPeerConnnection}: {rTCPeerConnnection: RTCPeerConnection}) => {
+const RTCOfferComponent = () => {
   const [offer, setOffer] = useState<string>("");
-  
-  return <>
-  <Button onClick={async () => {
-    
-    const newOffer = await rTCPeerConnnection.createOffer();
-    await rTCPeerConnnection.setLocalDescription(newOffer);
-    sendWebSocket({action:"storeOffer", data:newOffer})
-    setOffer(JSON.stringify(newOffer));
-    }}>Create Offer</Button>
-    <CopyTextComponent text={offer}></CopyTextComponent>
-  </>
-}
 
-const LocalVideoComponent = ({rTCPeerConnnection}: {rTCPeerConnnection: RTCPeerConnection}) => {
+  return (
+    <>
+      <Button
+        onClick={async () => {
+          const newOffer = await rTCPeerConnnection.createOffer();
+          await rTCPeerConnnection.setLocalDescription(newOffer);
+          sendWebSocket({ action: "storeOffer", data: newOffer });
+          setOffer(JSON.stringify(newOffer));
+        }}
+      >
+        Create Offer
+      </Button>
+      <CopyTextComponent text={offer}></CopyTextComponent>
+    </>
+  );
+};
+
+const LocalVideoComponent = () => {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -52,13 +48,12 @@ const LocalVideoComponent = ({rTCPeerConnnection}: {rTCPeerConnnection: RTCPeerC
       setStream(stream);
     };
 
-    
     if (!stream) {
       getUserMedia();
     } else {
       stream.getTracks().forEach((track) => {
-        rTCPeerConnnection?.addTrack(track, stream)
-      })
+        rTCPeerConnnection?.addTrack(track, stream);
+      });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
@@ -81,20 +76,19 @@ const LocalVideoComponent = ({rTCPeerConnnection}: {rTCPeerConnnection: RTCPeerC
   );
 };
 
-const RemoteVideoComponent = ({rTCPeerConnnection}: {rTCPeerConnnection: RTCPeerConnection}) => {
+const RemoteVideoComponent = () => {
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (!remoteStream) {
-      setRemoteStream(new MediaStream())
-      // rTCPeerConnnection.ontrack
+      setRemoteStream(new MediaStream());
     } else {
-      rTCPeerConnnection.ontrack = event => {
-        event.streams[0].getTracks().forEach(track => {
-          remoteStream.addTrack(track)
-        })
-      }
+      rTCPeerConnnection.ontrack = (event) => {
+        event.streams[0].getTracks().forEach((track) => {
+          remoteStream.addTrack(track);
+        });
+      };
 
       if (videoRef.current) {
         videoRef.current.srcObject = remoteStream;
@@ -117,7 +111,5 @@ const RemoteVideoComponent = ({rTCPeerConnnection}: {rTCPeerConnnection: RTCPeer
     </div>
   );
 };
-
-
 
 export default App;

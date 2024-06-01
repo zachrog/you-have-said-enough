@@ -1,19 +1,11 @@
-const servers = {
-  iceServers: [
-    {
-      urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"],
-    },
-  ],
-  iceCandidatePoolSize: 10,
-};
-
-export const rTCPeerConnnection = new RTCPeerConnection(servers);
-const webSocket = createWebSocket();
+import { rTCPeerConnnection } from '@/rtcPeerConnection';
 
 export type WebSocketMessage = {
   action: string;
   data: any;
 };
+
+const webSocket = createWebSocket();
 
 export function createWebSocket() {
   const webSocketUrl = import.meta.env.VITE_WEBSOCKET_URL;

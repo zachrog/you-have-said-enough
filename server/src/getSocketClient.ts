@@ -6,7 +6,7 @@ let socketClient: ApiGatewayManagementApiClient;
 export function getSocketClient() {
   if (!socketClient) {
     socketClient = new ApiGatewayManagementApiClient({
-      endpoint: environment.webSocketUrl,
+      endpoint: environment.webSocketUrl.replace("wss", "https"),
     });
   }
   return socketClient;

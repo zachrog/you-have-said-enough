@@ -28,7 +28,10 @@ export default $config({
         VITE_DBNAME: dbName,
         VITE_WEBSOCKET_URL: socketApi.url,
       },
-      permissions: [{ actions: ["dynamodb:*"], resources: ["*"] }],
+      permissions: [
+        { actions: ["dynamodb:*"], resources: ["*"] },
+        { actions: ["execute-api:*"], resources: ["*"] },
+      ],
     });
     socketApi.route("$disconnect", {
       handler: "server/src/socketApi.disconnectHandler",
@@ -36,7 +39,10 @@ export default $config({
         VITE_DBNAME: dbName,
         VITE_WEBSOCKET_URL: socketApi.url,
       },
-      permissions: [{ actions: ["dynamodb:*"], resources: ["*"] }],
+      permissions: [
+        { actions: ["dynamodb:*"], resources: ["*"] },
+        { actions: ["execute-api:*"], resources: ["*"] },
+      ],
     });
     socketApi.route("$default", {
       handler: "server/src/socketApi.defaultHandler",
@@ -44,7 +50,10 @@ export default $config({
         VITE_DBNAME: dbName,
         VITE_WEBSOCKET_URL: socketApi.url,
       },
-      permissions: [{ actions: ["dynamodb:*"], resources: ["*"] }],
+      permissions: [
+        { actions: ["dynamodb:*"], resources: ["*"] },
+        { actions: ["execute-api:*"], resources: ["*"] },
+      ],
     });
 
     new sst.aws.StaticSite("Zuumb", {

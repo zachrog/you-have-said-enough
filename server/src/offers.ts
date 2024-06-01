@@ -20,9 +20,4 @@ export async function storeOffer({
       offer,
     },
   });
-
-  await broadcastToRoom({
-    myConnectionId: connectionId,
-    message: { action: "newOffer", data: offer },
-  });
 }

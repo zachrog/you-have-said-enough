@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./components/ui/button";
 import { CopyTextComponent } from "./components/textComponent";
-import { sendWebSocket } from "./WebSocket";
+import { sendWebSocket } from "./socketClient";
 import { rTCPeerConnnection } from "@/rtcPeerConnection";
 
 function App() {
@@ -23,7 +23,7 @@ const RTCOfferComponent = () => {
         onClick={async () => {
           const newOffer = await rTCPeerConnnection.createOffer();
           await rTCPeerConnnection.setLocalDescription(newOffer);
-          sendWebSocket({ action: "storeOffer", data: newOffer });
+          sendWebSocket({ action: "sendOffer", data: newOffer });
           setOffer(JSON.stringify(newOffer));
         }}
       >

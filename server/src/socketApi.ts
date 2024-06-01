@@ -8,7 +8,7 @@ type WebSocketReturn = {
 };
 
 export type ServerWebsocketMessage = {
-  action: "sendOffer" | "sendAnswer";
+  action: "sendOffer" | "sendAnswer" | "newIceCandidate";
   data: any;
 };
 
@@ -44,6 +44,12 @@ export async function defaultHandler(
       await broadcastToRoom({
         myConnectionId: event.requestContext.connectionId,
         message: { action: "newAnswer", data: message.data },
+      });
+      break;
+    case "newIceCandidate":
+      await broadcastToRoom({
+        myConnectionId: event.requestContext.connectionId,
+        message: { action: "newIceCandidate", data: message.data },
       });
       break;
     default:

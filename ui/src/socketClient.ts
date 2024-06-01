@@ -2,7 +2,7 @@ import { rTCPeerConnnection } from "@/rtcPeerConnection";
 import { ServerWebsocketMessage } from "server/src/socketApi";
 
 export type ClientWebsocketMessage = {
-  action: "newOffer" | "newAnswer";
+  action: "newOffer" | "newAnswer" | "newIceCandidate";
   data: any;
 };
 
@@ -34,6 +34,13 @@ export function createWebSocket() {
         break;
       case "newAnswer":
         await rTCPeerConnnection.setRemoteDescription(message.data);
+        break;
+      case "newIceCandidate":
+        try {
+          await rTCPeerConnnection.addIceCandidate(message.data);
+        } catch (e) {
+          console.log("ice candidate error:", e);
+        }
         break;
       default:
         break;

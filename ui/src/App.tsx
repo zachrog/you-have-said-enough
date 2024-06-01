@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./components/ui/button";
-import { CopyTextComponent } from "./components/textComponent";
 import { sendWebSocket } from "./socketClient";
 import { rTCPeerConnnection } from "@/rtcPeerConnection";
 
@@ -15,7 +14,6 @@ function App() {
 }
 
 const RTCOfferComponent = () => {
-  const [offer, setOffer] = useState<string>("");
 
   return (
     <>
@@ -24,12 +22,10 @@ const RTCOfferComponent = () => {
           const newOffer = await rTCPeerConnnection.createOffer();
           await rTCPeerConnnection.setLocalDescription(newOffer);
           sendWebSocket({ action: "sendOffer", data: newOffer });
-          setOffer(JSON.stringify(newOffer));
         }}
       >
         Create Offer
       </Button>
-      <CopyTextComponent text={offer}></CopyTextComponent>
     </>
   );
 };
@@ -77,7 +73,6 @@ const LocalVideoComponent = () => {
 
 const RemoteVideoComponent = () => {
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
-  const [rerender, setRerender] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   console.log("RemoteVideoComponent rerender");
 
@@ -110,7 +105,6 @@ const RemoteVideoComponent = () => {
     <div>
       <h1>Remote Component</h1>
       <video className="h-300 w-900" ref={videoRef} autoPlay playsInline />
-      <Button onClick={() => setRerender(rerender + 1)}>Rerender!</Button>
     </div>
   );
 };

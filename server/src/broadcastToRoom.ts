@@ -2,7 +2,7 @@ import { getDynamo } from "./getDynamo";
 import { environment } from "./environment";
 import { getSocketClient } from "./getSocketClient";
 import { PostToConnectionCommand } from "@aws-sdk/client-apigatewaymanagementapi";
-import { ClientWebsocketMessage } from "../../ui/src/WebSocket";
+import { ClientWebsocketMessage } from "../../ui/src/socketClient";
 
 export async function broadcastToRoom({
   myConnectionId,

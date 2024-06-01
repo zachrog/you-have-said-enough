@@ -22,7 +22,6 @@ export function createWebSocket() {
   };
 
   newWebSocket.onmessage = async (event) => {
-    console.log("bitch we socket :", event);
     const message: ClientWebsocketMessage = JSON.parse(event.data);
     switch (message.action) {
       case "newOffer":
@@ -32,12 +31,10 @@ export function createWebSocket() {
         const answer = await rTCPeerConnnection.createAnswer();
         await rTCPeerConnnection.setLocalDescription(answer);
 
-        sendWebSocket({ action: "storeAnswer", data: answer });
+        sendWebSocket({ action: "sendAnswer", data: answer });
         break;
       case "newAnswer":
-        console.log("got answer");
         await rTCPeerConnnection.setRemoteDescription(message.data);
-
         break;
       default:
         break;

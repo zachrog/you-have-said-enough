@@ -1,7 +1,6 @@
 import { APIGatewayProxyWebsocketEventV2 } from "aws-lambda";
 import { storeConnection } from "./storeConnection";
 import { removeConnection } from "./removeConnection";
-import { storeOffer } from "./offers";
 import { broadcastToRoom } from "./broadcastToRoom";
 
 type WebSocketReturn = {
@@ -9,7 +8,7 @@ type WebSocketReturn = {
 };
 
 export type ServerWebsocketMessage = {
-  action: "storeOffer" | "storeAnswer";
+  action: "sendOffer" | "sendAnswer";
   data: any;
 };
 
@@ -35,13 +34,13 @@ export async function defaultHandler(
   console.log("default event: ", event);
   const message: ServerWebsocketMessage = JSON.parse(event.body!);
   switch (message.action) {
-    case "storeOffer":
-      await storeOffer({
-        connectionId: event.requestContext.connectionId,
-        offer: message.data,
+    case "sendOffer":
+      await broadcastToRoom({
+        myConnectionId: event.requestContext.connectionId,
+        message: { action: "newOffer", data: message.data },
       });
       break;
-    case "storeAnswer":
+    case "sendAnswer":
       await broadcastToRoom({
         myConnectionId: event.requestContext.connectionId,
         message: { action: "newAnswer", data: message.data },

@@ -1,7 +1,8 @@
-import { rTCPeerConnnection } from '@/rtcPeerConnection';
+import { rTCPeerConnnection } from "@/rtcPeerConnection";
+import { ServerWebsocketMessage } from "server/src/socketApi";
 
-export type WebSocketMessage = {
-  action: string;
+export type ClientWebsocketMessage = {
+  action: "newOffer" | "newAnswer";
   data: any;
 };
 
@@ -22,7 +23,7 @@ export function createWebSocket() {
 
   newWebSocket.onmessage = async (event) => {
     console.log("bitch we socket :", event);
-    const message: WebSocketMessage = JSON.parse(event.data);
+    const message: ClientWebsocketMessage = JSON.parse(event.data);
     switch (message.action) {
       case "newOffer":
         rTCPeerConnnection.setRemoteDescription(
@@ -32,7 +33,6 @@ export function createWebSocket() {
         await rTCPeerConnnection.setLocalDescription(answer);
 
         sendWebSocket({ action: "storeAnswer", data: answer });
-        // .send({ answer: answer });
         break;
       case "newAnswer":
         console.log("got answer");
@@ -42,7 +42,6 @@ export function createWebSocket() {
       default:
         break;
     }
-    //
   };
 
   newWebSocket.onopen = (event) => {
@@ -56,6 +55,6 @@ export function closeWebSocket() {
   webSocket.close();
 }
 
-export function sendWebSocket(message: WebSocketMessage) {
+export function sendWebSocket(message: ServerWebsocketMessage) {
   webSocket.send(JSON.stringify(message));
 }

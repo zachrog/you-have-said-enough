@@ -2,14 +2,14 @@ import { getDynamo } from "./getDynamo";
 import { environment } from "./environment";
 import { getSocketClient } from "./getSocketClient";
 import { PostToConnectionCommand } from "@aws-sdk/client-apigatewaymanagementapi";
-import { WebSocketMessage } from "../../ui/src/WebSocket";
+import { ClientWebsocketMessage } from "../../ui/src/WebSocket";
 
 export async function broadcastToRoom({
   myConnectionId,
   message,
 }: {
   myConnectionId: string;
-  message: WebSocketMessage;
+  message: ClientWebsocketMessage;
 }) {
   const dynamoDb = getDynamo();
   const dbName = environment.dynamoTableName;

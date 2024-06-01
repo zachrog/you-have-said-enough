@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import "./App.css";
 import { Button } from "./components/ui/button";
 import { CopyTextComponent } from "./components/textComponent";
 import { sendWebSocket } from "./WebSocket";

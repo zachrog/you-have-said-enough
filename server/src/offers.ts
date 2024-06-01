@@ -1,8 +1,5 @@
 import { environment } from "./environment";
 import { getDynamo } from "./getDynamo";
-import { getSocketClient } from "./getSocketClient";
-import { PostToConnectionCommand } from "@aws-sdk/client-apigatewaymanagementapi";
-import { WebSocketMessage } from "../../ui/src/WebSocket";
 import { broadcastToRoom } from "./broadcastToRoom";
 
 export async function storeOffer({

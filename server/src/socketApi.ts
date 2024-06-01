@@ -1,13 +1,16 @@
 import { APIGatewayProxyWebsocketEventV2 } from "aws-lambda";
 import { storeConnection } from "./storeConnection";
 import { removeConnection } from "./removeConnection";
-import { WebSocketMessage } from "../../ui/src/WebSocket";
 import { storeOffer } from "./offers";
 import { broadcastToRoom } from "./broadcastToRoom";
 
 type WebSocketReturn = {
   statusCode: number;
-  body?: string;
+};
+
+export type ServerWebsocketMessage = {
+  action: "storeOffer" | "storeAnswer";
+  data: any;
 };
 
 export async function connectHandler(
@@ -15,7 +18,7 @@ export async function connectHandler(
 ): Promise<WebSocketReturn> {
   console.log("connect event: ", event);
   await storeConnection(event.requestContext.connectionId);
-  return { statusCode: 200, body: "storing connection id" };
+  return { statusCode: 200 };
 }
 
 export async function disconnectHandler(
@@ -23,14 +26,14 @@ export async function disconnectHandler(
 ): Promise<WebSocketReturn> {
   console.log("disconnect event: ", event);
   await removeConnection(event.requestContext.connectionId);
-  return { statusCode: 200, body: "hola" };
+  return { statusCode: 200 };
 }
 
 export async function defaultHandler(
   event: APIGatewayProxyWebsocketEventV2
 ): Promise<WebSocketReturn> {
   console.log("default event: ", event);
-  const message: WebSocketMessage = JSON.parse(event.body);
+  const message: ServerWebsocketMessage = JSON.parse(event.body!);
   switch (message.action) {
     case "storeOffer":
       await storeOffer({
@@ -46,7 +49,6 @@ export async function defaultHandler(
       break;
     default:
       throw new Error("unknown action in message");
-      break;
   }
-  return { statusCode: 200, body: "hola" };
+  return { statusCode: 200 };
 }

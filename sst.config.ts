@@ -23,7 +23,7 @@ export default $config({
     const socketApi = new sst.aws.ApiGatewayWebSocket("ZuumbWebSocketApi");
 
     socketApi.route("$connect", {
-      handler: "server/src/socketApi.connectHandler",
+      handler: "server/src/connectHandler.connectHandler",
       environment: {
         VITE_DBNAME: dbName,
         VITE_WEBSOCKET_URL: socketApi.url,

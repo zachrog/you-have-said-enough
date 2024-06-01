@@ -1,57 +1,122 @@
-import { rTCPeerConnnection } from "@/rtcPeerConnection";
+import {
+  createRTCPeerConnection,
+  rTCPeerConnections,
+} from "@/rtcPeerConnection";
 import { ServerWebsocketMessage } from "server/src/socketApi";
 
 export type ClientWebsocketMessage = {
-  action: "newOffer" | "newAnswer" | "newIceCandidate";
+  action:
+    | "newOffer"
+    | "newAnswer"
+    | "newIceCandidate"
+    | "allConnectionIds"
+    | "yourConnectionId";
+  to: string;
+  from: string;
   data: any;
 };
 
-const webSocket = createWebSocket();
+let webSocket: WebSocket;
+let myConnectionId: string = "noId";
 
-export function createWebSocket() {
+export async function createWebSocket(): Promise<void> {
   const webSocketUrl = import.meta.env.VITE_WEBSOCKET_URL;
-
-  console.log(webSocketUrl);
-  if (!webSocketUrl) {
-    throw new Error("No websocket url");
-  }
-  const newWebSocket = new WebSocket(webSocketUrl);
-
-  newWebSocket.onerror = (event) => {
-    console.log("on error : ", event);
-  };
-
-  newWebSocket.onmessage = async (event) => {
-    const message: ClientWebsocketMessage = JSON.parse(event.data);
-    switch (message.action) {
-      case "newOffer":
-        rTCPeerConnnection.setRemoteDescription(
-          new RTCSessionDescription(message.data)
-        );
-        const answer = await rTCPeerConnnection.createAnswer();
-        await rTCPeerConnnection.setLocalDescription(answer);
-        sendWebSocket({ action: "sendAnswer", data: answer });
-        break;
-      case "newAnswer":
-        await rTCPeerConnnection.setRemoteDescription(message.data);
-        break;
-      case "newIceCandidate":
-        try {
-          await rTCPeerConnnection.addIceCandidate(message.data);
-        } catch (e) {
-          console.log("ice candidate error:", e);
-        }
-        break;
-      default:
-        break;
+  const returnedPromise = new Promise<void>((resolve, reject) => {
+    if (!webSocketUrl) {
+      throw new Error("No websocket url");
     }
-  };
+    webSocket = new WebSocket(webSocketUrl);
 
-  newWebSocket.onopen = (event) => {
-    console.log(event);
-  };
+    webSocket.onerror = (event) => {
+      console.log("on error : ", event);
+      reject(event);
+    };
 
-  return newWebSocket;
+    webSocket.onmessage = async (event) => {
+      const message: ClientWebsocketMessage = JSON.parse(event.data);
+      switch (message.action) {
+        case "newOffer":
+          await clientNewOffer(message);
+          break;
+        case "newAnswer":
+          await clientNewAnswer(message);
+          break;
+        case "newIceCandidate":
+          await clientNewIceCandidate(message);
+          break;
+        case "allConnectionIds":
+          await Promise.all(
+            message.data.map(async (iD: string) => {
+              const rtcPeerConnection = createRTCPeerConnection(
+                iD,
+                myConnectionId
+              );
+              const newOffer = await rtcPeerConnection.createOffer();
+              await rtcPeerConnection.setLocalDescription(newOffer);
+              sendWebSocket({
+                action: "newOffer",
+                from: myConnectionId,
+                to: iD,
+                data: newOffer,
+              });
+            })
+          );
+          break;
+        case "yourConnectionId":
+          myConnectionId = message.data;
+          break;
+        default:
+          break;
+      }
+    };
+
+    webSocket.onopen = (event) => {
+      console.log("I am connected!", event);
+      resolve();
+    };
+  });
+  return returnedPromise;
+}
+
+async function clientNewIceCandidate(message: ClientWebsocketMessage) {
+  const rTCPeerConnection = rTCPeerConnections.get(message.from);
+  if (!rTCPeerConnection) {
+    console.log("no peer connection for newIceCandidate");
+    return;
+  }
+  try {
+    await rTCPeerConnection.addIceCandidate(message.data);
+  } catch (e) {
+    console.log("ice candidate error:", e);
+  }
+}
+
+async function clientNewAnswer(message: ClientWebsocketMessage) {
+  const rTCPeerConnection = rTCPeerConnections.get(message.from);
+  if (!rTCPeerConnection) {
+    console.log("no peer connection for newAnswer");
+    return;
+  }
+  await rTCPeerConnection.setRemoteDescription(message.data);
+}
+
+async function clientNewOffer(message: ClientWebsocketMessage) {
+  const rTCPeerConnection = createRTCPeerConnection(
+    message.from,
+    myConnectionId
+  );
+  rTCPeerConnection.setRemoteDescription(
+    new RTCSessionDescription(message.data)
+  );
+  const answer = await rTCPeerConnection.createAnswer();
+  await rTCPeerConnection.setLocalDescription(answer);
+  sendWebSocket({
+    action: "newAnswer",
+    to: message.from,
+    from: myConnectionId,
+    data: answer,
+  });
+  return rTCPeerConnection;
 }
 
 export function closeWebSocket() {

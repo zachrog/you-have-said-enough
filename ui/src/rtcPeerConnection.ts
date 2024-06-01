@@ -9,14 +9,26 @@ const servers = {
   iceCandidatePoolSize: 10,
 };
 
-export const rTCPeerConnnection = new RTCPeerConnection(servers);
+export const rTCPeerConnections: Map<string, RTCPeerConnection> = new Map();
 
-rTCPeerConnnection.addEventListener("connectionstatechange", () => {
-  console.log("connectionstate:", rTCPeerConnnection.connectionState);
-});
-
-rTCPeerConnnection.addEventListener("icecandidate", (event) => {
-  if (event.candidate) {
-    sendWebSocket({ action: "newIceCandidate", data: event.candidate });
-  }
-});
+export function createRTCPeerConnection(
+  peerId: string,
+  myConnectionId: string
+) {
+  const rTCPeerConnection = new RTCPeerConnection(servers);
+  // rTCPeerConnection.addEventListener("connectionstatechange", () => {
+  //   console.log("connectionstate:", rTCPeerConnection.connectionState);
+  // });
+  rTCPeerConnection.addEventListener("icecandidate", (event) => {
+    if (event.candidate) {
+      sendWebSocket({
+        action: "newIceCandidate",
+        to: peerId,
+        from: myConnectionId,
+        data: event.candidate,
+      });
+    }
+  });
+  rTCPeerConnections.set(peerId, rTCPeerConnection);
+  return rTCPeerConnection;
+}

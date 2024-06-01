@@ -1,24 +1,18 @@
 import { APIGatewayProxyWebsocketEventV2 } from "aws-lambda";
-import { storeConnection } from "./storeConnection";
 import { removeConnection } from "./removeConnection";
-import { broadcastToRoom } from "./broadcastToRoom";
+import { sendWebsocketMessage } from "./broadcastToRoom";
+import { enterRoom } from "./enterRoom";
 
-type WebSocketReturn = {
+export type WebSocketReturn = {
   statusCode: number;
 };
 
 export type ServerWebsocketMessage = {
-  action: "sendOffer" | "sendAnswer" | "newIceCandidate";
+  action: "newOffer" | "newAnswer" | "newIceCandidate" | "enterRoom";
+  to: string;
+  from: string;
   data: any;
 };
-
-export async function connectHandler(
-  event: APIGatewayProxyWebsocketEventV2
-): Promise<WebSocketReturn> {
-  console.log("connect event: ", event);
-  await storeConnection(event.requestContext.connectionId);
-  return { statusCode: 200 };
-}
 
 export async function disconnectHandler(
   event: APIGatewayProxyWebsocketEventV2
@@ -34,23 +28,23 @@ export async function defaultHandler(
   console.log("default event: ", event);
   const message: ServerWebsocketMessage = JSON.parse(event.body!);
   switch (message.action) {
-    case "sendOffer":
-      await broadcastToRoom({
-        myConnectionId: event.requestContext.connectionId,
-        message: { action: "newOffer", data: message.data },
+    case "newOffer":
+      await sendWebsocketMessage({
+        message: message,
       });
       break;
-    case "sendAnswer":
-      await broadcastToRoom({
-        myConnectionId: event.requestContext.connectionId,
-        message: { action: "newAnswer", data: message.data },
+    case "newAnswer":
+      await sendWebsocketMessage({
+        message: message,
       });
       break;
     case "newIceCandidate":
-      await broadcastToRoom({
-        myConnectionId: event.requestContext.connectionId,
-        message: { action: "newIceCandidate", data: message.data },
+      await sendWebsocketMessage({
+        message: message,
       });
+      break;
+    case "enterRoom":
+      await enterRoom({ connectionId: event.requestContext.connectionId });
       break;
     default:
       throw new Error("unknown action in message");

@@ -7,7 +7,7 @@ import {
   sendWebSocket,
 } from "./socketClient";
 import { useEffect } from "react";
-import { RoomComponent } from "./roomComponent";
+import { RoomComponent } from "./RoomComponent";
 import { rtcPeerConnectionManager } from "./rtcPeerConnection";
 
 function App() {
@@ -21,8 +21,10 @@ function App() {
   }, []);
   return (
     <>
-      <RoomComponent></RoomComponent>
-      <RTCOfferComponent></RTCOfferComponent>
+      <div className="flex flex-col h-screen bg-gray-950 text-white overflow-hidden">
+        <RoomComponent></RoomComponent>
+        <RTCOfferComponent></RTCOfferComponent>
+      </div>
     </>
   );
 }

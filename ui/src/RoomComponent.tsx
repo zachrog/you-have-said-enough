@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { RemoteVideoComponent } from "./RemoteVideoComponent";
-import { LocalVideoComponent } from "./LocalVideoComponent";
+import { VideoComponent } from "./components/VideoComponent";
 import { rtcPeerConnectionManager } from "./rtcPeerConnection";
 import { Button } from "./components/ui/button";
 
@@ -28,16 +27,16 @@ export function RoomComponent() {
   return (
     <>
       <Button onClick={() => setSomeNum(someNum + 1)}>ReRender Room</Button>
-      <LocalVideoComponent localStream={stream}></LocalVideoComponent>
-      {remoteStreams.map((remoteStream) => {
-        return (
-          <>
-            <RemoteVideoComponent
-              remoteStream={remoteStream}
-            ></RemoteVideoComponent>
-          </>
-        );
-      })}
+      <div className="flex gap-4 p-4 flex-wrap">
+        <VideoComponent stream={stream} />
+        {remoteStreams.map((remoteStream) => {
+          return (
+            <>
+              <VideoComponent stream={remoteStream} />
+            </>
+          );
+        })}
+      </div>
     </>
   );
 }

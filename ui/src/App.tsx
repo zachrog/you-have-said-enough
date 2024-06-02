@@ -1,7 +1,5 @@
 import { Button } from "./components/ui/button";
-import { LocalVideoComponent } from "./LocalVideoComponent";
-import { AllRemoteVideosComponent } from "./AllRemoteVideosComponent";
-import { createWebSocket, sendWebSocket } from "./socketClient";
+import { closeWebSocket, createWebSocket, sendWebSocket } from "./socketClient";
 import { useEffect } from "react";
 import { RoomComponent } from "./roomComponent";
 
@@ -10,6 +8,9 @@ function App() {
     createWebSocket().then(() => {
       sendWebSocket({ action: "enterRoom", data: "", from: "", to: "" });
     });
+    return () => {
+      closeWebSocket();
+    };
   }, []);
   return (
     <>

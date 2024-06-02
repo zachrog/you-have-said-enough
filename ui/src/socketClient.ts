@@ -1,8 +1,5 @@
-import {
-  createRTCPeerConnection,
-  rTCPeerConnections,
-} from "@/rtcPeerConnection";
 import { ServerWebsocketMessage } from "server/src/socketApi";
+import { rtcPeerConnectionManager } from "./rtcPeerConnection";
 
 export type ClientWebsocketMessage = {
   action:
@@ -47,10 +44,11 @@ export async function createWebSocket(): Promise<void> {
         case "allConnectionIds":
           await Promise.all(
             message.data.map(async (iD: string) => {
-              const rtcPeerConnection = createRTCPeerConnection(
-                iD,
-                myConnectionId
-              );
+              const rtcPeerConnection =
+                await rtcPeerConnectionManager.createRtcPeerConnection({
+                  peerId: iD,
+                  myConnectionId,
+                });
               const newOffer = await rtcPeerConnection.createOffer();
               await rtcPeerConnection.setLocalDescription(newOffer);
               sendWebSocket({
@@ -79,7 +77,9 @@ export async function createWebSocket(): Promise<void> {
 }
 
 async function clientNewIceCandidate(message: ClientWebsocketMessage) {
-  const rTCPeerConnection = rTCPeerConnections.get(message.from);
+  const rTCPeerConnection = rtcPeerConnectionManager.get({
+    peerId: message.from,
+  });
   if (!rTCPeerConnection) {
     console.log("no peer connection for newIceCandidate");
     return;
@@ -92,7 +92,9 @@ async function clientNewIceCandidate(message: ClientWebsocketMessage) {
 }
 
 async function clientNewAnswer(message: ClientWebsocketMessage) {
-  const rTCPeerConnection = rTCPeerConnections.get(message.from);
+  const rTCPeerConnection = rtcPeerConnectionManager.get({
+    peerId: message.from,
+  });
   if (!rTCPeerConnection) {
     console.log("no peer connection for newAnswer");
     return;
@@ -101,10 +103,11 @@ async function clientNewAnswer(message: ClientWebsocketMessage) {
 }
 
 async function clientNewOffer(message: ClientWebsocketMessage) {
-  const rTCPeerConnection = createRTCPeerConnection(
-    message.from,
-    myConnectionId
-  );
+  const rTCPeerConnection =
+    await rtcPeerConnectionManager.createRtcPeerConnection({
+      peerId: message.from,
+      myConnectionId,
+    });
   rTCPeerConnection.setRemoteDescription(
     new RTCSessionDescription(message.data)
   );

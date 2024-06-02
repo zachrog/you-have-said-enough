@@ -3,6 +3,7 @@ import { LocalVideoComponent } from "./LocalVideoComponent";
 import { AllRemoteVideosComponent } from "./AllRemoteVideosComponent";
 import { createWebSocket, sendWebSocket } from "./socketClient";
 import { useEffect } from "react";
+import { RoomComponent } from "./roomComponent";
 
 function App() {
   useEffect(() => {
@@ -12,8 +13,7 @@ function App() {
   }, []);
   return (
     <>
-      <LocalVideoComponent></LocalVideoComponent>
-      <AllRemoteVideosComponent></AllRemoteVideosComponent>
+      <RoomComponent></RoomComponent>
       <RTCOfferComponent></RTCOfferComponent>
     </>
   );

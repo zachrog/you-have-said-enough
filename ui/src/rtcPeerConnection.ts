@@ -16,10 +16,9 @@ export function createRTCPeerConnection(
   myConnectionId: string
 ) {
   const rTCPeerConnection = new RTCPeerConnection(servers);
-  // rTCPeerConnection.addEventListener("connectionstatechange", () => {
-  //   console.log("connectionstate:", rTCPeerConnection.connectionState);
-  // });
+
   rTCPeerConnection.addEventListener("icecandidate", (event) => {
+    console.log("e found ice candy");
     if (event.candidate) {
       sendWebSocket({
         action: "newIceCandidate",

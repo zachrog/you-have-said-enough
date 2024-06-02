@@ -5,8 +5,7 @@ import { Button } from "./components/ui/button";
 
 export function RoomComponent() {
   const [someNum, setSomeNum] = useState(7);
-  const [stream, setStream] = useState<MediaStream | null>(null);
-  //   const localStream = rtcPeerConnectionManager.getLocalMediaStream();
+  const [localStream, setStream] = useState<MediaStream | null>(null);
   const remoteStreams = rtcPeerConnectionManager.getRemoteMediaStreams();
 
   useEffect(() => {
@@ -19,16 +18,16 @@ export function RoomComponent() {
       rtcPeerConnectionManager.setLocalMediaStream({ localMediaStream });
     };
 
-    if (!stream) {
+    if (!localStream) {
       getUserMedia();
     }
-  }, [stream]);
+  }, [localStream]);
 
   return (
     <>
       <Button onClick={() => setSomeNum(someNum + 1)}>ReRender Room</Button>
       <div className="flex gap-4 p-4 flex-wrap">
-        <VideoComponent stream={stream} />
+        <VideoComponent stream={localStream} local />
         {remoteStreams.map((remoteStream) => {
           return (
             <>

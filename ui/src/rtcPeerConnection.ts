@@ -70,6 +70,10 @@ class RtcPeerConnectionManager {
     rtcPeerConnection.addEventListener("connectionstatechange", () => {
       console.log("stateChange: ", rtcPeerConnection.connectionState);
       console.log(rtcPeerConnection);
+      if (rtcPeerConnection.connectionState == "disconnected") {
+        rtcPeerConnection.close();
+        this.videoPeerConnections.delete(peerId);
+      }
     });
 
     const remoteMediaStream = new MediaStream();

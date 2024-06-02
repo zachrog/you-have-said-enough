@@ -1,10 +1,13 @@
 import { sendWebSocket } from "./socketClient";
 
+type VideoPeerConnection = {
+  peerId: string;
+  remoteMediaStream: MediaStream;
+  rtcPeerConnection: RTCPeerConnection;
+};
+
 class RtcPeerConnectionManager {
-  private peerConnections: Map<string, RTCPeerConnection> = new Map();
-  private _peerConnectionListeners: ((
-    rtcPeerConnection: RTCPeerConnection
-  ) => void)[] = [];
+  private videoPeerConnections: Map<string, VideoPeerConnection> = new Map();
   private iceServers = {
     iceServers: [
       {
@@ -16,27 +19,43 @@ class RtcPeerConnectionManager {
     ],
     iceCandidatePoolSize: 10,
   };
+  private localMediaStream: MediaStream;
 
   constructor() {}
 
+  setLocalMediaStream({
+    localMediaStream,
+  }: {
+    localMediaStream: MediaStream;
+  }): void {
+    this.localMediaStream = localMediaStream;
+  }
+
+  getLocalMediaStream(): MediaStream {
+    return this.localMediaStream;
+  }
+
   get({ peerId }: { peerId: string }): RTCPeerConnection {
-    const peerConnection = this.peerConnections.get(peerId);
+    const peerConnection = this.videoPeerConnections.get(peerId);
     if (!peerConnection) {
       throw new Error(`Could net get peer connection: ${peerId}`);
     }
-    return peerConnection;
+    return peerConnection.rtcPeerConnection;
   }
 
-  async createRtcPeerConnection({
+  createRtcPeerConnection({
     peerId,
     myConnectionId,
   }: {
     peerId: string;
     myConnectionId: string;
-  }): Promise<RTCPeerConnection> {
-    const rTCPeerConnection = new RTCPeerConnection(this.iceServers);
+  }): RTCPeerConnection {
+    const rtcPeerConnection = new RTCPeerConnection(this.iceServers);
+    this.localMediaStream.getTracks().forEach((track) => {
+      rtcPeerConnection.addTrack(track, this.localMediaStream);
+    });
 
-    rTCPeerConnection.onicecandidate = (event) => {
+    rtcPeerConnection.addEventListener("icecandidate", (event) => {
       console.log("e found ice candy");
       if (event.candidate) {
         sendWebSocket({
@@ -46,19 +65,34 @@ class RtcPeerConnectionManager {
           data: event.candidate,
         });
       }
+    });
+
+    rtcPeerConnection.addEventListener("connectionstatechange", () => {
+      console.log("stateChange: ", rtcPeerConnection.connectionState);
+      console.log(rtcPeerConnection);
+    });
+
+    const remoteMediaStream = new MediaStream();
+    this.videoPeerConnections.set(peerId, {
+      peerId,
+      rtcPeerConnection,
+      remoteMediaStream,
+    });
+
+    rtcPeerConnection.ontrack = (event) => {
+      console.log(`ontrack event. peerId: ${peerId}`);
+      event.streams[0].getTracks().forEach((track) => {
+        remoteMediaStream.addTrack(track);
+      });
     };
 
-    this.peerConnections.set(peerId, rTCPeerConnection);
-    await Promise.all(
-      this._peerConnectionListeners.map((fun) => fun(rTCPeerConnection))
-    );
-    return rTCPeerConnection;
+    return rtcPeerConnection;
   }
 
-  async onCreateRtcPeerConnection(
-    listener: (rtcPeerConnection: RTCPeerConnection) => void
-  ) {
-    this._peerConnectionListeners.push(listener);
+  getRemoteMediaStreams(): MediaStream[] {
+    return Array.from(this.videoPeerConnections).map(
+      ([_peerId, peerConnection]) => peerConnection.remoteMediaStream
+    );
   }
 }
 

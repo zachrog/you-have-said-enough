@@ -14,7 +14,8 @@ export type ClientWebsocketMessage = {
 };
 
 let webSocket: WebSocket;
-let myConnectionId: string = "noId";
+export let myConnectionId: string = "noId";
+export let allConnectionIds: string[] = [];
 
 export async function createWebSocket(): Promise<void> {
   const webSocketUrl = import.meta.env.VITE_WEBSOCKET_URL;
@@ -42,23 +43,7 @@ export async function createWebSocket(): Promise<void> {
           await clientNewIceCandidate(message);
           break;
         case "allConnectionIds":
-          await Promise.all(
-            message.data.map(async (iD: string) => {
-              const rtcPeerConnection =
-                await rtcPeerConnectionManager.createRtcPeerConnection({
-                  peerId: iD,
-                  myConnectionId,
-                });
-              const newOffer = await rtcPeerConnection.createOffer();
-              await rtcPeerConnection.setLocalDescription(newOffer);
-              sendWebSocket({
-                action: "newOffer",
-                from: myConnectionId,
-                to: iD,
-                data: newOffer,
-              });
-            })
-          );
+          allConnectionIds = message.data;
           break;
         case "yourConnectionId":
           myConnectionId = message.data;
@@ -103,12 +88,11 @@ async function clientNewAnswer(message: ClientWebsocketMessage) {
 }
 
 async function clientNewOffer(message: ClientWebsocketMessage) {
-  const rTCPeerConnection =
-    await rtcPeerConnectionManager.createRtcPeerConnection({
-      peerId: message.from,
-      myConnectionId,
-    });
-  rTCPeerConnection.setRemoteDescription(
+  const rTCPeerConnection = rtcPeerConnectionManager.createRtcPeerConnection({
+    peerId: message.from,
+    myConnectionId,
+  });
+  await rTCPeerConnection.setRemoteDescription(
     new RTCSessionDescription(message.data)
   );
   const answer = await rTCPeerConnection.createAnswer();

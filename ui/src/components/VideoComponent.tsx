@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { clsx } from "clsx";
 
 export function VideoComponent({
   stream,
@@ -15,7 +16,7 @@ export function VideoComponent({
       videoRef.current.srcObject = stream;
       if (local) videoRef.current.muted = true;
     }
-    if (stream && local) {
+    if (stream) {
       const audioContext = new AudioContext();
       const source = audioContext.createMediaStreamSource(stream);
       const analyser = audioContext.createAnalyser();
@@ -54,9 +55,23 @@ export function VideoComponent({
   }, [stream]);
 
   return (
-    <div className="aspect-video bg-gray-800 min-w-28 max-w-90 flex-1">
-      <video className="rounded-lg" ref={videoRef} autoPlay playsInline />
-      {isTalking && <h1>Is Talking!</h1>}
+    <div>
+      <video
+        className={clsx([
+          "aspect-video",
+          "bg-gray-800",
+          "min-w-28",
+          "max-w-90",
+          "flex-1",
+          "rounded-lg",
+          isTalking && "border-emerald-400",
+          isTalking && "border-2",
+        ])}
+        ref={videoRef}
+        autoPlay
+        playsInline
+      />
+      {/* {isTalking && <h1>Is Talking!</h1>} */}
     </div>
   );
 }

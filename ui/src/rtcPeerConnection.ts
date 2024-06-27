@@ -20,6 +20,7 @@ class RtcPeerConnectionManager {
     iceCandidatePoolSize: 10,
   };
   private localMediaStream: MediaStream;
+  listeners: Function[] = [];
 
   constructor() {}
 
@@ -77,6 +78,10 @@ class RtcPeerConnectionManager {
     });
 
     const remoteMediaStream = new MediaStream();
+    for (let index = 0; index < this.listeners.length; index++) {
+      const element = this.listeners[index];
+      element(remoteMediaStream);
+    }
     this.videoPeerConnections.set(peerId, {
       peerId,
       rtcPeerConnection,

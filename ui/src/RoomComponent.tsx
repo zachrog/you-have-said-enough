@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { VideoComponent } from "./components/VideoComponent";
 import { rtcPeerConnectionManager } from "./rtcPeerConnection";
-import { Button } from "./components/ui/button";
 
 export function RoomComponent() {
-  const [someNum, setSomeNum] = useState(7);
   const [localStream, setStream] = useState<MediaStream | null>(null);
-  const remoteStreams = rtcPeerConnectionManager.getRemoteMediaStreams();
+  const [remoteStreams, setRemoteStreams] = useState<MediaStream[]>([]);
+  // need to set remote streams
+  // We do not want to add multiple listeners every time the component re-renders
+  rtcPeerConnectionManager.listeners = [];
+  rtcPeerConnectionManager.listeners.push((newMediaStream: MediaStream) => {
+    setRemoteStreams([...remoteStreams, newMediaStream]);
+  });
 
   useEffect(() => {
     const getUserMedia = async () => {
@@ -25,7 +29,6 @@ export function RoomComponent() {
 
   return (
     <>
-      <Button onClick={() => setSomeNum(someNum + 1)}>ReRender Room</Button>
       <div className="flex gap-4 p-4 flex-wrap">
         <VideoComponent stream={localStream} local />
         {remoteStreams.map((remoteStream) => {

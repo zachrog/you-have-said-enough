@@ -3,12 +3,14 @@ import { VideoComponent } from "./components/VideoComponent";
 import {
   VideoPeerConnection,
   rtcPeerConnectionManager,
-} from "./rtcPeerConnection";
+} from "./rtcPeerConnectionManager";
 import { myConnectionId } from "@/socketClient";
 
 export function RoomComponent() {
   const [localStream, setStream] = useState<MediaStream | null>(null);
-  const [peerConnections, setPeerConnections] = useState<VideoPeerConnection[]>([]);
+  const [peerConnections, setPeerConnections] = useState<VideoPeerConnection[]>(
+    []
+  );
 
   useEffect(() => {
     // need to set remote streams

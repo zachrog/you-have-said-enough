@@ -93,6 +93,7 @@ class RtcPeerConnectionManager {
       event.streams[0].getTracks().forEach((track) => {
         remoteMediaStream.addTrack(track);
       });
+      remoteMediaStream.dispatchEvent(new Event("alltracksadded"));
     };
 
     return rtcPeerConnection;

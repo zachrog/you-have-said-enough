@@ -1,5 +1,5 @@
 import { ServerWebsocketMessage } from "server/src/socketApi";
-import { rtcPeerConnectionManager } from "./rtcPeerConnection";
+import { rtcPeerConnectionManager } from "./rtcPeerConnectionManager";
 
 export type ClientWebsocketMessage = {
   action:

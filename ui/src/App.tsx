@@ -8,7 +8,7 @@ import {
 } from "./socketClient";
 import { useEffect } from "react";
 import { RoomComponent } from "./RoomComponent";
-import { rtcPeerConnectionManager } from "./rtcPeerConnection";
+import { rtcPeerConnectionManager } from "./rtcPeerConnectionManager";
 
 function App() {
   useEffect(() => {

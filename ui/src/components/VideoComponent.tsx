@@ -18,42 +18,47 @@ export function VideoComponent({
       videoRef.current.srcObject = stream;
       if (local) videoRef.current.muted = true;
     }
-    // if (stream) {
-    //   const audioContext = new AudioContext();
-    //   const source = audioContext.createMediaStreamSource(stream);
-    //   const analyser = audioContext.createAnalyser();
+  }, [stream]);
 
-    //   // Set up the analyser node
-    //   analyser.fftSize = 2048;
-    //   const bufferLength = analyser.fftSize;
-    //   const dataArray = new Uint8Array(bufferLength);
+  useEffect(() => {
+    if (stream && !local) {
+      stream.addEventListener("alltracksadded", () => {
+        const audioContext = new AudioContext();
+        const source = audioContext.createMediaStreamSource(stream);
+        const analyser = audioContext.createAnalyser();
 
-    //   source.connect(analyser);
+        // Set up the analyser node
+        analyser.fftSize = 2048;
+        const bufferLength = analyser.fftSize;
+        const dataArray = new Uint8Array(bufferLength);
 
-    //   function analyzeAudio() {
-    //     analyser.getByteTimeDomainData(dataArray);
+        source.connect(analyser);
 
-    //     // Calculate the average audio level
-    //     let sum = 0;
-    //     for (let i = 0; i < bufferLength; i++) {
-    //       const value = dataArray[i] / 128 - 1;
-    //       sum += value * value;
-    //     }
-    //     const average = Math.sqrt(sum / bufferLength);
+        function analyzeAudio() {
+          analyser.getByteTimeDomainData(dataArray);
 
-    //     // Determine if the user is speaking
-    //     if (average > 0.01) {
-    //       // Adjust this threshold as needed
-    //       setIsTalking(true);
-    //     } else {
-    //       setIsTalking(false);
-    //     }
+          // Calculate the average audio level
+          let sum = 0;
+          for (let i = 0; i < bufferLength; i++) {
+            const value = dataArray[i] / 128 - 1;
+            sum += value * value;
+          }
+          const average = Math.sqrt(sum / bufferLength);
 
-    //     requestAnimationFrame(analyzeAudio);
-    //   }
+          // Determine if the user is speaking
+          if (average > 0.01) {
+            // Adjust this threshold as needed
+            setIsTalking(true);
+          } else {
+            setIsTalking(false);
+          }
 
-    //   analyzeAudio();
-    // }
+          requestAnimationFrame(analyzeAudio);
+        }
+
+        analyzeAudio();
+      });
+    }
   }, [stream]);
 
   return (
@@ -74,7 +79,6 @@ export function VideoComponent({
         autoPlay
         playsInline
       />
-      {/* {isTalking && <h1>Is Talking!</h1>} */}
     </div>
   );
 }

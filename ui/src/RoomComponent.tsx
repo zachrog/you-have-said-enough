@@ -5,12 +5,14 @@ import { rtcPeerConnectionManager } from "./rtcPeerConnection";
 export function RoomComponent() {
   const [localStream, setStream] = useState<MediaStream | null>(null);
   const [remoteStreams, setRemoteStreams] = useState<MediaStream[]>([]);
-  // need to set remote streams
-  // We do not want to add multiple listeners every time the component re-renders
-  rtcPeerConnectionManager.listeners = [];
-  rtcPeerConnectionManager.listeners.push((newMediaStream: MediaStream) => {
-    setRemoteStreams([...remoteStreams, newMediaStream]);
-  });
+
+  useEffect(() => {
+    // need to set remote streams
+    // We do not want to add multiple listeners every time the component re-renders
+    rtcPeerConnectionManager.listeners.push((newMediaStream: MediaStream) => {
+      setRemoteStreams([...remoteStreams, newMediaStream]);
+    });
+  }, []);
 
   useEffect(() => {
     const getUserMedia = async () => {

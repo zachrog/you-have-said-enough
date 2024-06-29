@@ -41,9 +41,7 @@ const RTCOfferComponent = () => {
                   peerId: iD,
                   myConnectionId,
                 });
-              console.log("creating new offer");
               const newOffer = await rtcPeerConnection.createOffer();
-              console.log(newOffer);
               await rtcPeerConnection.setLocalDescription(newOffer);
               sendWebSocket({
                 action: "newOffer",

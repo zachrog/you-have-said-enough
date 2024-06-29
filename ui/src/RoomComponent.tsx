@@ -9,8 +9,8 @@ export function RoomComponent() {
   useEffect(() => {
     // need to set remote streams
     // We do not want to add multiple listeners every time the component re-renders
-    rtcPeerConnectionManager.listeners.push((newMediaStream: MediaStream) => {
-      setRemoteStreams([...remoteStreams, newMediaStream]);
+    rtcPeerConnectionManager.listeners.push(() => {
+      setRemoteStreams(rtcPeerConnectionManager.getRemoteMediaStreams());
     });
   }, []);
 
@@ -27,7 +27,7 @@ export function RoomComponent() {
     if (!localStream) {
       getUserMedia();
     }
-  }, [localStream]);
+  }, []);
 
   return (
     <>

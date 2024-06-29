@@ -57,7 +57,6 @@ class RtcPeerConnectionManager {
     });
 
     rtcPeerConnection.addEventListener("icecandidate", (event) => {
-      console.log("e found ice candy");
       if (event.candidate) {
         sendWebSocket({
           action: "newIceCandidate",
@@ -69,31 +68,33 @@ class RtcPeerConnectionManager {
     });
 
     rtcPeerConnection.addEventListener("connectionstatechange", () => {
-      console.log("stateChange: ", rtcPeerConnection.connectionState);
-      console.log(rtcPeerConnection);
       if (rtcPeerConnection.connectionState == "disconnected") {
         rtcPeerConnection.close();
         this.videoPeerConnections.delete(peerId);
+        for (let index = 0; index < this.listeners.length; index++) {
+          const listener = this.listeners[index];
+          listener();
+        }
       }
     });
 
     const remoteMediaStream = new MediaStream();
-    for (let index = 0; index < this.listeners.length; index++) {
-      const element = this.listeners[index];
-      element(remoteMediaStream);
-    }
     this.videoPeerConnections.set(peerId, {
       peerId,
       rtcPeerConnection,
       remoteMediaStream,
     });
+    for (let index = 0; index < this.listeners.length; index++) {
+      const listener = this.listeners[index];
+      listener();
+    }
 
     rtcPeerConnection.ontrack = (event) => {
-      console.log(`ontrack event. peerId: ${peerId}`);
       event.streams[0].getTracks().forEach((track) => {
         remoteMediaStream.addTrack(track);
       });
     };
+
 
     return rtcPeerConnection;
   }

@@ -54,7 +54,6 @@ export async function createWebSocket(): Promise<void> {
     };
 
     webSocket.onopen = (event) => {
-      console.log("I am connected!", event);
       resolve();
     };
   });

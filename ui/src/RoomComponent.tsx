@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
 import { VideoComponent } from "./components/VideoComponent";
-import { rtcPeerConnectionManager } from "./rtcPeerConnection";
+import {
+  VideoPeerConnection,
+  rtcPeerConnectionManager,
+} from "./rtcPeerConnection";
+import { myConnectionId } from "@/socketClient";
 
 export function RoomComponent() {
   const [localStream, setStream] = useState<MediaStream | null>(null);
-  const [remoteStreams, setRemoteStreams] = useState<MediaStream[]>([]);
+  const [peerConnections, setPeerConnections] = useState<VideoPeerConnection[]>([]);
 
   useEffect(() => {
     // need to set remote streams
     // We do not want to add multiple listeners every time the component re-renders
     rtcPeerConnectionManager.listeners.push(() => {
-      setRemoteStreams(rtcPeerConnectionManager.getRemoteMediaStreams());
+      setPeerConnections(rtcPeerConnectionManager.getPeerConnections());
     });
   }, []);
 
@@ -32,11 +36,18 @@ export function RoomComponent() {
   return (
     <>
       <div className="flex gap-4 p-4 flex-wrap">
-        <VideoComponent stream={localStream} local />
-        {remoteStreams.map((remoteStream) => {
+        <VideoComponent
+          stream={localStream}
+          local
+          connectionId={`me: ${myConnectionId}`}
+        />
+        {peerConnections.map((remoteConnection) => {
           return (
             <>
-              <VideoComponent stream={remoteStream} />
+              <VideoComponent
+                stream={remoteConnection.remoteMediaStream}
+                connectionId={remoteConnection.peerId}
+              />
             </>
           );
         })}

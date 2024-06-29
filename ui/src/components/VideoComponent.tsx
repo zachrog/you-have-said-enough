@@ -4,8 +4,10 @@ import { clsx } from "clsx";
 export function VideoComponent({
   stream,
   local,
+  connectionId,
 }: {
   stream: MediaStream | null;
+  connectionId: string;
   local?: boolean;
 }) {
   const [isTalking, setIsTalking] = useState(false);
@@ -56,6 +58,7 @@ export function VideoComponent({
 
   return (
     <div>
+      <p>ConnectionId {connectionId}</p>
       <video
         className={clsx([
           "aspect-video",

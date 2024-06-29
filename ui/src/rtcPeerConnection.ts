@@ -1,6 +1,6 @@
 import { sendWebSocket } from "./socketClient";
 
-type VideoPeerConnection = {
+export type VideoPeerConnection = {
   peerId: string;
   remoteMediaStream: MediaStream;
   rtcPeerConnection: RTCPeerConnection;
@@ -95,13 +95,12 @@ class RtcPeerConnectionManager {
       });
     };
 
-
     return rtcPeerConnection;
   }
 
-  getRemoteMediaStreams(): MediaStream[] {
+  getPeerConnections() {
     return Array.from(this.videoPeerConnections).map(
-      ([_peerId, peerConnection]) => peerConnection.remoteMediaStream
+      ([_peerId, peerConnection]) => peerConnection
     );
   }
 }

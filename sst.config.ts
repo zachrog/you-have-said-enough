@@ -16,6 +16,7 @@ export default $config({
         pk: "string",
         sk: "string",
       },
+      ttl: "ttl",
       primaryIndex: { hashKey: "pk", rangeKey: "sk" },
     });
     const dbName = dynamoDb.name;

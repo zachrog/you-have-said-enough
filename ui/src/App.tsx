@@ -9,14 +9,15 @@ import {
 import { useEffect } from "react";
 import { RoomComponent } from "./RoomComponent";
 import { rtcPeerConnectionManager } from "./rtcPeerConnectionManager";
+import { SocketClient } from "@/socketClient2";
 
 function App() {
   useEffect(() => {
-    createWebSocket().then(() => {
-      sendWebSocket({ action: "enterRoom", data: "", from: "", to: "" });
-    });
+    const socketClient = new SocketClient(import.meta.env.VITE_WEBSOCKET_URL);
+    socketClient.init();
+
     return () => {
-      closeWebSocket();
+      socketClient.close();
     };
   }, []);
   return (

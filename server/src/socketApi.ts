@@ -8,7 +8,12 @@ export type WebSocketReturn = {
 };
 
 export type ServerWebsocketMessage = {
-  action: "newOffer" | "newAnswer" | "newIceCandidate" | "enterRoom";
+  action:
+    | "newOffer"
+    | "newAnswer"
+    | "newIceCandidate"
+    | "enterRoom"
+    | "yourConnectionId";
   to: string;
   from: string;
   data: any;
@@ -28,6 +33,16 @@ export async function defaultHandler(
   console.log("default event: ", event);
   const message: ServerWebsocketMessage = JSON.parse(event.body!);
   switch (message.action) {
+    case "yourConnectionId":
+      await sendWebsocketMessage({
+        message: {
+          to: event.requestContext.connectionId,
+          action: "yourConnectionId",
+          data: event.requestContext.connectionId,
+          from: "server",
+        },
+      });
+      break;
     case "newOffer":
       await sendWebsocketMessage({
         message: message,

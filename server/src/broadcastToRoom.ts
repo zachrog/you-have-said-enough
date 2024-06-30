@@ -8,7 +8,7 @@ export async function sendWebsocketMessage({
 }: {
   message: ClientWebsocketMessage;
 }) {
-  if (message.to == "all") {
+  if (message.to === "all") {
     await broadcastToRoom({
       myConnectionId: message.from,
       message: message,

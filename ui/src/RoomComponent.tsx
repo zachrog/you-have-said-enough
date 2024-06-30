@@ -4,9 +4,17 @@ import {
   VideoPeerConnection,
   rtcPeerConnectionManager,
 } from "./rtcPeerConnectionManager";
-import { myConnectionId } from "@/socketClient";
+import {
+  SocketClient,
+  getSocketClient,
+  someoneNewJoined,
+  clientNewIceCandidate,
+  clientNewAnswer,
+  clientNewOffer,
+} from "@/socketClient2";
 
 export function RoomComponent() {
+  const [myConnectionId, setMyConnectionId] = useState<string>("");
   const [localStream, setStream] = useState<MediaStream | null>(null);
   const [peerConnections, setPeerConnections] = useState<VideoPeerConnection[]>(
     []
@@ -35,6 +43,30 @@ export function RoomComponent() {
     }
   }, []);
 
+  useEffect(() => {
+    let socketClient: SocketClient;
+    const initSocketClient = async () => {
+      socketClient = await getSocketClient();
+      setMyConnectionId(socketClient.myConnectionId);
+      socketClient.addMessageListener(clientNewIceCandidate);
+      socketClient.addMessageListener(someoneNewJoined);
+      socketClient.addMessageListener(clientNewAnswer);
+      socketClient.addMessageListener(clientNewOffer);
+      socketClient.sendMessage({
+        action: "enterRoom",
+        data: "",
+        from: "",
+        to: "",
+      });
+    };
+
+    initSocketClient();
+
+    return () => {
+      socketClient.close();
+    };
+  }, []);
+
   return (
     <>
       <div className="flex gap-4 p-4 flex-wrap">
@@ -49,6 +81,7 @@ export function RoomComponent() {
               <VideoComponent
                 stream={remoteConnection.remoteMediaStream}
                 connectionId={remoteConnection.peerId}
+                key={remoteConnection.peerId}
               />
             </>
           );

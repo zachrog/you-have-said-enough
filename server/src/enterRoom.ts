@@ -1,37 +1,17 @@
 import { ClientWebsocketMessage } from "@/socketClient";
-import { PostToConnectionCommand } from "@aws-sdk/client-apigatewaymanagementapi";
-import { getAllConnections } from "./getAllConnections";
-import { getSocketClient } from "./getSocketClient";
+import { sendWebsocketMessage } from "server/src/broadcastToRoom";
 
-export async function enterRoom({ connectionId }: { connectionId: string }) {
-  const connectionIds = await getAllConnections();
-  connectionIds.delete(connectionId);
-
-  const socketClient = getSocketClient();
-
-  const connectIdMessage: ClientWebsocketMessage = {
-    action: "yourConnectionId",
-    from: "server",
-    to: connectionId,
-    data: connectionId,
+export async function enterRoom({
+  myConnectionId,
+}: {
+  myConnectionId: string;
+}) {
+  const newUserConnectedMessage: ClientWebsocketMessage = {
+    action: "newUserJoined",
+    from: myConnectionId,
+    to: "all",
+    data: myConnectionId,
   };
-  await socketClient.send(
-    new PostToConnectionCommand({
-      ConnectionId: connectionId,
-      Data: JSON.stringify(connectIdMessage),
-    })
-  );
 
-  const allIdsMessage: ClientWebsocketMessage = {
-    action: "allConnectionIds",
-    from: "server",
-    to: connectionId,
-    data: Array.from(connectionIds.values()),
-  };
-  await socketClient.send(
-    new PostToConnectionCommand({
-      ConnectionId: connectionId,
-      Data: JSON.stringify(allIdsMessage),
-    })
-  );
+  await sendWebsocketMessage({ message: newUserConnectedMessage });
 }

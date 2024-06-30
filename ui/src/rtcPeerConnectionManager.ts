@@ -1,4 +1,4 @@
-import { sendWebSocket } from "./socketClient";
+import { getSocketClient } from "@/socketClient2";
 
 export type VideoPeerConnection = {
   peerId: string;
@@ -56,9 +56,10 @@ class RtcPeerConnectionManager {
       rtcPeerConnection.addTrack(track, this.localMediaStream);
     });
 
-    rtcPeerConnection.addEventListener("icecandidate", (event) => {
+    rtcPeerConnection.addEventListener("icecandidate", async (event) => {
       if (event.candidate) {
-        sendWebSocket({
+        const socketClient = await getSocketClient();
+        socketClient.sendMessage({
           action: "newIceCandidate",
           to: peerId,
           from: myConnectionId,

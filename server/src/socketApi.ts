@@ -59,7 +59,7 @@ export async function defaultHandler(
       });
       break;
     case "enterRoom":
-      await enterRoom({ connectionId: event.requestContext.connectionId });
+      await enterRoom({ myConnectionId: event.requestContext.connectionId });
       break;
     default:
       throw new Error("unknown action in message");

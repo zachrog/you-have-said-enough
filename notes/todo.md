@@ -1,0 +1,4 @@
+- Add ttl to all dynamo records
+- Use a websocket package
+- Separate App.tsx from Room using a router
+- Add 

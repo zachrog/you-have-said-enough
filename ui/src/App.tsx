@@ -6,7 +6,7 @@ function App() {
   const [joinedRoom, setJoinedRoom] = useState(false);
   return (
     <>
-      <div className="flex flex-col h-screen bg-gray-950 text-white overflow-hidden">
+      <div className="flex flex-col h-screen bg-gray-950 text-white">
         <Button onClick={() => setJoinedRoom(true)}>
           Join if you D.A.R.E.
         </Button>

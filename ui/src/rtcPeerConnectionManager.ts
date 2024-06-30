@@ -32,10 +32,6 @@ class RtcPeerConnectionManager {
     this.localMediaStream = localMediaStream;
   }
 
-  getLocalMediaStream(): MediaStream {
-    return this.localMediaStream;
-  }
-
   get({ peerId }: { peerId: string }): RTCPeerConnection {
     const peerConnection = this.videoPeerConnections.get(peerId);
     if (!peerConnection) {

@@ -137,7 +137,7 @@ export async function clientNewAnswer(message: ClientWebsocketMessage) {
 }
 
 export async function clientNewOffer(message: ClientWebsocketMessage) {
-  if (message.action !== "newAnswer") return;
+  if (message.action !== "newOffer") return;
   const socketClient = await getSocketClient();
   const rTCPeerConnection = rtcPeerConnectionManager.createRtcPeerConnection({
     peerId: message.from,

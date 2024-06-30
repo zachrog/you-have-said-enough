@@ -38,12 +38,11 @@ export function RoomComponent() {
       rtcPeerConnectionManager.setLocalMediaStream({ localMediaStream });
     };
 
-    if (!localStream) {
-      getUserMedia();
-    }
+    getUserMedia();
   }, []);
 
   useEffect(() => {
+    if (!localStream) return;
     let socketClient: SocketClient;
     const initSocketClient = async () => {
       socketClient = await getSocketClient();
@@ -65,7 +64,7 @@ export function RoomComponent() {
     return () => {
       socketClient.close();
     };
-  }, []);
+  }, [localStream]);
 
   return (
     <>

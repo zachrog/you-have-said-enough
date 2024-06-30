@@ -26,7 +26,7 @@ export async function enterRoom({ connectionId }: { connectionId: string }) {
     action: "allConnectionIds",
     from: "server",
     to: connectionId,
-    data: Array.from(connectionIds),
+    data: Array.from(connectionIds.values()),
   };
   await socketClient.send(
     new PostToConnectionCommand({

@@ -1,10 +1,13 @@
+import { ConnectionRecord } from "server/src/storeConnection";
 import { environment } from "./environment";
 import { getDynamo } from "./getDynamo";
 
-export async function getAllConnections(): Promise<Set<string>> {
+export async function getAllConnections(): Promise<
+  Map<string, { connectionId: string }>
+> {
   const dynamoDb = getDynamo();
   const dbName = environment.dynamoTableName;
-  const userRecords = await dynamoDb.query({
+  const result = await dynamoDb.query({
     TableName: dbName,
     ExpressionAttributeNames: {
       "#pk": "pk",
@@ -17,9 +20,11 @@ export async function getAllConnections(): Promise<Set<string>> {
     KeyConditionExpression: "#pk = :pk and begins_with(#sk, :sk)",
   });
 
-  const connectionIds: Set<string> = new Set();
-  userRecords.Items?.forEach((item) => {
-    connectionIds.add(item.connectionId);
-  });
-  return connectionIds;
+  const connectionMap: Map<string, { connectionId: string }> = new Map();
+  (result.Items as ConnectionRecord[])?.forEach(
+    (connection: ConnectionRecord) =>
+      connectionMap.set(connection.data.connectionId, connection.data)
+  );
+
+  return connectionMap;
 }

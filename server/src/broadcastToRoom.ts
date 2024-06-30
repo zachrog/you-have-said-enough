@@ -36,10 +36,10 @@ async function broadcastToRoom({
   const socketClient = getSocketClient();
 
   await Promise.all(
-    Array.from(connectionIds).map(async (connectionId) => {
+    Array.from(connectionIds.values()).map(async (connection) => {
       await socketClient.send(
         new PostToConnectionCommand({
-          ConnectionId: connectionId,
+          ConnectionId: connection.connectionId,
           Data: JSON.stringify(message),
         })
       );

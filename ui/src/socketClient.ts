@@ -43,7 +43,9 @@ export async function createWebSocket(): Promise<void> {
           await clientNewIceCandidate(message);
           break;
         case "allConnectionIds":
-          allConnectionIds = message.data;
+          allConnectionIds = message.data.map(
+            (connection: { connectionId: string }) => connection.connectionId
+          );
           break;
         case "yourConnectionId":
           myConnectionId = message.data;

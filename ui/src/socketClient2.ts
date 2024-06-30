@@ -4,7 +4,10 @@ import { ServerWebsocketMessage } from "server/src/socketApi";
 export class SocketClient {
   private connectionUrl: string;
   private webSocket: WebSocket;
-  private messageListeners: MessageListener[] = [];
+  private messageListeners: {
+    original: MessageListener;
+    parsed: (message: MessageEvent) => void;
+  }[] = [];
   myConnectionId: string = "noId";
 
   constructor(url: string) {
@@ -19,8 +22,7 @@ export class SocketClient {
 
     const connectionIdPromise = new Promise<{ myConnectionId: string }>(
       (resolve) => {
-        const connectionIdListener = (event: MessageEvent) => {
-          const message: ClientWebsocketMessage = JSON.parse(event.data);
+        const connectionIdListener = (message: ClientWebsocketMessage) => {
           if (message.action === "yourConnectionId") {
             const myConnectionId = message.data;
             resolve({ myConnectionId });
@@ -48,19 +50,32 @@ export class SocketClient {
   }
 
   close() {
-    // Need to remove all listeners
+    this.messageListeners.forEach((listener) => {
+      this.webSocket.removeEventListener("message", listener.parsed);
+    });
+    this.messageListeners = [];
     this.webSocket.close();
   }
 
-  addMessageListener(f: MessageListener) {
-    this.webSocket.addEventListener("message", f);
+  addMessageListener(f: MessageListener): void {
+    const parsedListener = (event: MessageEvent) => {
+      const message: ClientWebsocketMessage = JSON.parse(event.data);
+      f(message);
+    };
+    this.messageListeners.push({ original: f, parsed: parsedListener });
+    this.webSocket.addEventListener("message", parsedListener);
   }
 
-  removeMessageListener(f: MessageListener) {
-    this.webSocket.removeEventListener("message", f);
+  removeMessageListener(f: MessageListener): void {
+    const index = this.messageListeners.findIndex(
+      (listnerObject) => listnerObject.original === f
+    );
+    if (index) {
+      this.messageListeners.splice(index, 1);
+    }
   }
 }
 
 type MessageListener = (
-  message: MessageEvent
-) => void | ((message: MessageEvent) => Promise<void>);
+  message: ClientWebsocketMessage
+) => void | ((message: ClientWebsocketMessage) => Promise<void>);

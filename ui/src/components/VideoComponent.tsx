@@ -11,7 +11,9 @@ export function VideoComponent({
   local?: boolean;
 }) {
   const [isTalking, setIsTalking] = useState(false);
+  const [timeTalking, setTimeTalking] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const averageWindow = 5000;
 
   useEffect(() => {
     if (videoRef.current && stream) {
@@ -34,6 +36,8 @@ export function VideoComponent({
 
         source.connect(analyser);
 
+        let timeOfLastSample = 0;
+        let timeSpentGatheringData = 0;
         function analyzeAudio() {
           analyser.getByteTimeDomainData(dataArray);
 
@@ -46,12 +50,20 @@ export function VideoComponent({
           const average = Math.sqrt(sum / bufferLength);
 
           // Determine if the user is speaking
+          const now = Date.now();
+          const timeBetweenSamps = now - timeOfLastSample;
           if (average > 0.01) {
             // Adjust this threshold as needed
             setIsTalking(true);
+            setTimeTalking(timeTalking + timeBetweenSamps);
           } else {
+            if (timeSpentGatheringData > averageWindow) {
+              // setTimeTalking(Math.max(0, timeTalking - timeBetweenSamps));
+            }
             setIsTalking(false);
           }
+          timeOfLastSample = now;
+          timeSpentGatheringData = timeSpentGatheringData + timeBetweenSamps;
 
           requestAnimationFrame(analyzeAudio);
         }
@@ -64,6 +76,7 @@ export function VideoComponent({
   return (
     <div>
       <p>ConnectionId {connectionId}</p>
+      <p>Time spent talking {timeTalking}</p>
       <video
         className={clsx([
           "aspect-video",

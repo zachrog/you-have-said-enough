@@ -11,7 +11,7 @@ export function VideoComponent({
   local?: boolean;
 }) {
   const [isTalking, setIsTalking] = useState(false);
-  const [timeTalking, setTimeTalking] = useState(0);
+  const [timeTalkingDisplay, setTimeTalking] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const averageWindow = 5000;
 
@@ -38,6 +38,7 @@ export function VideoComponent({
 
         let timeOfLastSample = 0;
         let timeSpentGatheringData = 0;
+        let timeTalking = 0;
         function analyzeAudio() {
           analyser.getByteTimeDomainData(dataArray);
 
@@ -53,15 +54,16 @@ export function VideoComponent({
           const now = Date.now();
           const timeBetweenSamps = now - timeOfLastSample;
           if (average > 0.01) {
-            // Adjust this threshold as needed
             setIsTalking(true);
-            setTimeTalking(timeTalking + timeBetweenSamps);
+            timeTalking = timeTalking + timeBetweenSamps; // Problem only adding  and not removing time
           } else {
-            if (timeSpentGatheringData > averageWindow) {
-              // setTimeTalking(Math.max(0, timeTalking - timeBetweenSamps));
-            }
             setIsTalking(false);
+            if (timeSpentGatheringData > averageWindow) {
+              timeTalking = Math.max(0, timeTalking - timeBetweenSamps);
+            }
           }
+
+          setTimeTalking(timeTalking);
           timeOfLastSample = now;
           timeSpentGatheringData = timeSpentGatheringData + timeBetweenSamps;
 
@@ -76,7 +78,7 @@ export function VideoComponent({
   return (
     <div>
       <p>ConnectionId {connectionId}</p>
-      <p>Time spent talking {timeTalking}</p>
+      <p>Time spent talking {timeTalkingDisplay}</p>
       <video
         className={clsx([
           "aspect-video",

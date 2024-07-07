@@ -13,7 +13,6 @@ export function VideoComponent({
   const [isTalking, setIsTalking] = useState(false);
   const [timeTalkingDisplay, setTimeTalking] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const averageWindow = 5000;
 
   useEffect(() => {
     if (videoRef.current) {
@@ -24,12 +23,12 @@ export function VideoComponent({
 
   useEffect(() => {
     if (local) {
-      analyzeAudio();
+      attachAudioAnalyzer();
     } else {
-      stream.addEventListener("alltracksadded", analyzeAudio); // Remote streams have tracks added later on.
+      stream.addEventListener("alltracksadded", attachAudioAnalyzer); // Remote streams have tracks added later on.
     }
 
-    function analyzeAudio() {
+    function attachAudioAnalyzer() {
       const audioContext = new AudioContext();
       const source = audioContext.createMediaStreamSource(stream);
       const analyser = audioContext.createAnalyser();
@@ -42,8 +41,10 @@ export function VideoComponent({
       source.connect(analyser);
 
       let timeOfLastSample = 0;
-      let timeSpentGatheringData = 0;
-      let timeTalking = 0;
+      let timeTalkingInWindow = 0;
+      const evaluationWindow = 5000;
+      const speechHistory: { timeSpentTalking: number; recordedAt: number }[] =
+        [];
       function analyzeAudio() {
         analyser.getByteTimeDomainData(dataArray);
 
@@ -58,27 +59,33 @@ export function VideoComponent({
         // Determine if the user is speaking
         const now = Date.now();
         const timeBetweenSamps = now - timeOfLastSample;
-        if (average > 0.01) {
-          setIsTalking(true);
-          timeTalking = timeTalking + timeBetweenSamps; // Problem only adding  and not removing time
-        } else {
-          setIsTalking(false);
-          if (timeSpentGatheringData > averageWindow) {
-            timeTalking = Math.max(0, timeTalking - timeBetweenSamps);
-          }
+        const userWasTalking = average > 0.01;
+        const timeSpentTalking = userWasTalking ? timeBetweenSamps : 0;
+        timeTalkingInWindow = timeTalkingInWindow + timeSpentTalking;
+        setIsTalking(userWasTalking);
+        speechHistory.push({
+          recordedAt: now,
+          timeSpentTalking,
+        });
+
+        let lastEvaluatedPeriod = speechHistory[0].recordedAt;
+        while (lastEvaluatedPeriod < now - evaluationWindow) {
+          const deletedEntry = speechHistory.shift()!;
+          lastEvaluatedPeriod = speechHistory[0].recordedAt;
+          timeTalkingInWindow =
+            timeTalkingInWindow - deletedEntry.timeSpentTalking;
         }
 
-        setTimeTalking(timeTalking);
+        setTimeTalking(timeTalkingInWindow);
         timeOfLastSample = now;
-        timeSpentGatheringData = timeSpentGatheringData + timeBetweenSamps;
-
         requestAnimationFrame(analyzeAudio);
       }
 
       analyzeAudio();
     }
 
-    return () => stream.removeEventListener("alltracksadded", analyzeAudio);
+    return () =>
+      stream.removeEventListener("alltracksadded", attachAudioAnalyzer);
   }, []);
 
   return (

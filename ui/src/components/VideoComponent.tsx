@@ -13,7 +13,7 @@ export function VideoComponent({
 }) {
   const [isTalking, setIsTalking] = useState(false);
   const [timeTalkingDisplay, setTimeTalking] = useState(0);
-  const [videoProportion, setVideoProportion] = useState(1);
+  const [scalingProportion, setScalingProportion] = useState(1);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -22,6 +22,12 @@ export function VideoComponent({
       if (local) videoRef.current.volume = 0;
     }
   }, [videoRef]);
+
+  useEffect(() => {
+    if (videoRef.current && !local) {
+      videoRef.current.volume = scalingProportion;
+    }
+  }, [videoRef, scalingProportion]);
 
   useEffect(() => {
     if (local) {
@@ -78,7 +84,7 @@ export function VideoComponent({
             timeTalkingInWindow - deletedEntry.timeSpentTalking;
         }
 
-        setVideoProportion(
+        setScalingProportion(
           calculateScalingProportion({
             evaluationWindow,
             timeTalkingInWindow,
@@ -111,7 +117,7 @@ export function VideoComponent({
           isTalking && "border-emerald-400",
           isTalking && "border-2",
         ])}
-        style={{ transform: `scale(${videoProportion})` }}
+        style={{ transform: `scale(${scalingProportion})` }}
         ref={videoRef}
         autoPlay
         playsInline

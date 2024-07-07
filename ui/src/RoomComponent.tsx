@@ -69,11 +69,13 @@ export function RoomComponent() {
   return (
     <>
       <div className="flex gap-4 p-4 flex-wrap">
-        <VideoComponent
-          stream={localStream}
-          local
-          connectionId={`me: ${myConnectionId}`}
-        />
+        {localStream && (
+          <VideoComponent
+            stream={localStream}
+            local
+            connectionId={`me: ${myConnectionId}`}
+          />
+        )}
         {peerConnections.map((remoteConnection) => {
           return (
             <>

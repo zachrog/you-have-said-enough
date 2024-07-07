@@ -6,7 +6,7 @@ export function VideoComponent({
   local,
   connectionId,
 }: {
-  stream: MediaStream | null;
+  stream: MediaStream;
   connectionId: string;
   local?: boolean;
 }) {
@@ -16,64 +16,70 @@ export function VideoComponent({
   const averageWindow = 5000;
 
   useEffect(() => {
-    if (videoRef.current && stream) {
+    if (videoRef.current) {
       videoRef.current.srcObject = stream;
       if (local) videoRef.current.volume = 0;
     }
-  }, [stream]);
+  }, [videoRef]);
 
   useEffect(() => {
-    if (stream) {
-      // stream.addEventListener("alltracksadded", () => {
-        const audioContext = new AudioContext();
-        const source = audioContext.createMediaStreamSource(stream);
-        const analyser = audioContext.createAnalyser();
+    if (local) {
+      analyzeAudio();
+    } else {
+      stream.addEventListener("alltracksadded", analyzeAudio); // Remote streams have tracks added later on.
+    }
 
-        // Set up the analyser node
-        analyser.fftSize = 2048;
-        const bufferLength = analyser.fftSize;
-        const dataArray = new Uint8Array(bufferLength);
+    function analyzeAudio() {
+      const audioContext = new AudioContext();
+      const source = audioContext.createMediaStreamSource(stream);
+      const analyser = audioContext.createAnalyser();
 
-        source.connect(analyser);
+      // Set up the analyser node
+      analyser.fftSize = 2048;
+      const bufferLength = analyser.fftSize;
+      const dataArray = new Uint8Array(bufferLength);
 
-        let timeOfLastSample = 0;
-        let timeSpentGatheringData = 0;
-        let timeTalking = 0;
-        function analyzeAudio() {
-          analyser.getByteTimeDomainData(dataArray);
+      source.connect(analyser);
 
-          // Calculate the average audio level
-          let sum = 0;
-          for (let i = 0; i < bufferLength; i++) {
-            const value = dataArray[i] / 128 - 1;
-            sum += value * value;
+      let timeOfLastSample = 0;
+      let timeSpentGatheringData = 0;
+      let timeTalking = 0;
+      function analyzeAudio() {
+        analyser.getByteTimeDomainData(dataArray);
+
+        // Calculate the average audio level
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          const value = dataArray[i] / 128 - 1;
+          sum += value * value;
+        }
+        const average = Math.sqrt(sum / bufferLength);
+
+        // Determine if the user is speaking
+        const now = Date.now();
+        const timeBetweenSamps = now - timeOfLastSample;
+        if (average > 0.01) {
+          setIsTalking(true);
+          timeTalking = timeTalking + timeBetweenSamps; // Problem only adding  and not removing time
+        } else {
+          setIsTalking(false);
+          if (timeSpentGatheringData > averageWindow) {
+            timeTalking = Math.max(0, timeTalking - timeBetweenSamps);
           }
-          const average = Math.sqrt(sum / bufferLength);
-
-          // Determine if the user is speaking
-          const now = Date.now();
-          const timeBetweenSamps = now - timeOfLastSample;
-          if (average > 0.01) {
-            setIsTalking(true);
-            timeTalking = timeTalking + timeBetweenSamps; // Problem only adding  and not removing time
-          } else {
-            setIsTalking(false);
-            if (timeSpentGatheringData > averageWindow) {
-              timeTalking = Math.max(0, timeTalking - timeBetweenSamps);
-            }
-          }
-
-          setTimeTalking(timeTalking);
-          timeOfLastSample = now;
-          timeSpentGatheringData = timeSpentGatheringData + timeBetweenSamps;
-
-          requestAnimationFrame(analyzeAudio);
         }
 
-        analyzeAudio();
-      // });
+        setTimeTalking(timeTalking);
+        timeOfLastSample = now;
+        timeSpentGatheringData = timeSpentGatheringData + timeBetweenSamps;
+
+        requestAnimationFrame(analyzeAudio);
+      }
+
+      analyzeAudio();
     }
-  }, [stream]);
+
+    return () => stream.removeEventListener("alltracksadded", analyzeAudio);
+  }, []);
 
   return (
     <div>

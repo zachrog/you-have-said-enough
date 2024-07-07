@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { clsx } from "clsx";
+import { calculateScalingProportion } from "@/lib/audioStatistics";
 
 export function VideoComponent({
   stream,
@@ -12,6 +13,7 @@ export function VideoComponent({
 }) {
   const [isTalking, setIsTalking] = useState(false);
   const [timeTalkingDisplay, setTimeTalking] = useState(0);
+  const [videoProportion, setVideoProportion] = useState(1);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -76,6 +78,12 @@ export function VideoComponent({
             timeTalkingInWindow - deletedEntry.timeSpentTalking;
         }
 
+        setVideoProportion(
+          calculateScalingProportion({
+            evaluationWindow,
+            timeTalkingInWindow,
+          })
+        );
         setTimeTalking(timeTalkingInWindow);
         timeOfLastSample = now;
         requestAnimationFrame(analyzeAudio);
@@ -103,6 +111,7 @@ export function VideoComponent({
           isTalking && "border-emerald-400",
           isTalking && "border-2",
         ])}
+        style={{ transform: `scale(${videoProportion})` }}
         ref={videoRef}
         autoPlay
         playsInline

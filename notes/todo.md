@@ -1,2 +1,4 @@
+- Create multiple rooms instead of just one.
+- Create statistics to monitor how much a person has been talking over a certain window of time.
 - Separate App.tsx from Room using a router
 - Use new websocket client

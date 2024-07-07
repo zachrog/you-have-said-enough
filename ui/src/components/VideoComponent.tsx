@@ -18,13 +18,13 @@ export function VideoComponent({
   useEffect(() => {
     if (videoRef.current && stream) {
       videoRef.current.srcObject = stream;
-      if (local) videoRef.current.muted = true;
+      if (local) videoRef.current.volume = 0;
     }
   }, [stream]);
 
   useEffect(() => {
-    if (stream && !local) {
-      stream.addEventListener("alltracksadded", () => {
+    if (stream) {
+      // stream.addEventListener("alltracksadded", () => {
         const audioContext = new AudioContext();
         const source = audioContext.createMediaStreamSource(stream);
         const analyser = audioContext.createAnalyser();
@@ -71,7 +71,7 @@ export function VideoComponent({
         }
 
         analyzeAudio();
-      });
+      // });
     }
   }, [stream]);
 

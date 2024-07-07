@@ -107,10 +107,6 @@ export async function clientNewIceCandidate(message: ClientWebsocketMessage) {
   const rTCPeerConnection = rtcPeerConnectionManager.get({
     peerId: message.from,
   });
-  if (!rTCPeerConnection) {
-    console.log("no peer connection for newIceCandidate");
-    return;
-  }
   try {
     await rTCPeerConnection.addIceCandidate(message.data);
   } catch (e) {

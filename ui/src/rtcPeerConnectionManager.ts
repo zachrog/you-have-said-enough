@@ -1,4 +1,4 @@
-import { getSocketClient } from "@/socketClient2";
+import { getSocketClient } from "@/socketClient";
 
 export type VideoPeerConnection = {
   peerId: string;

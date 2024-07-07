@@ -11,7 +11,7 @@ import {
   clientNewIceCandidate,
   clientNewAnswer,
   clientNewOffer,
-} from "@/socketClient2";
+} from "@/socketClient";
 
 export function RoomComponent() {
   const [myConnectionId, setMyConnectionId] = useState<string>("");

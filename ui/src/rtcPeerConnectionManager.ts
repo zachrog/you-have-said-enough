@@ -132,15 +132,15 @@ class RtcPeerConnectionManager {
   }
 
   async drainIceCandidates({ peerId }: { peerId: string }): Promise<void> {
-    const rtcPeerConnection = this.videoPeerConnections.get(peerId);
-    if (!rtcPeerConnection) {
+    const peer = this.videoPeerConnections.get(peerId);
+    if (!peer) {
       throw new Error("could not get video peer connection ");
     }
-    if (!rtcPeerConnection.readyToForwardRemoteIceCandidates) return;
+    if (!peer.readyToForwardRemoteIceCandidates) return;
     await Promise.all(
-      rtcPeerConnection.remoteIceCandidates.map(async (iceCandidate) => {
+      peer.remoteIceCandidates.map(async (iceCandidate) => {
         try {
-          await rtcPeerConnection.rtcPeerConnection.addIceCandidate(
+          await peer.rtcPeerConnection.addIceCandidate(
             iceCandidate
           );
         } catch (e) {
@@ -148,7 +148,7 @@ class RtcPeerConnectionManager {
         }
       })
     );
-    rtcPeerConnection.remoteIceCandidates = [];
+    peer.remoteIceCandidates = [];
   }
 }
 

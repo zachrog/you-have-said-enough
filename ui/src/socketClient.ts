@@ -13,7 +13,6 @@ export type ClientWebsocketMessage = {
   data: any;
 };
 
-
 let socketClientCache: SocketClient;
 export async function getSocketClient(): Promise<SocketClient> {
   if (!socketClientCache) {
@@ -104,14 +103,11 @@ type MessageListener = (
 
 export async function clientNewIceCandidate(message: ClientWebsocketMessage) {
   if (message.action !== "newIceCandidate") return;
-  const rTCPeerConnection = rtcPeerConnectionManager.get({
+  rtcPeerConnectionManager.addIceCandidates({
     peerId: message.from,
+    iceCandidate: message.data,
   });
-  try {
-    await rTCPeerConnection.addIceCandidate(message.data);
-  } catch (e) {
-    console.log("ice candidate error:", e);
-  }
+  await rtcPeerConnectionManager.drainIceCandidates({ peerId: message.from });
 }
 
 export async function someoneNewJoined(message: ClientWebsocketMessage) {
@@ -142,6 +138,11 @@ export async function clientNewAnswer(message: ClientWebsocketMessage) {
     return;
   }
   await rTCPeerConnection.setRemoteDescription(message.data);
+  rtcPeerConnectionManager.setReadyToForwardRemoteIceCandidates({
+    isReady: true,
+    peerId: message.from,
+  });
+  await rtcPeerConnectionManager.drainIceCandidates({ peerId: message.from });
 }
 
 export async function clientNewOffer(message: ClientWebsocketMessage) {
@@ -162,4 +163,9 @@ export async function clientNewOffer(message: ClientWebsocketMessage) {
     from: socketClient.myConnectionId,
     data: answer,
   });
+  rtcPeerConnectionManager.setReadyToForwardRemoteIceCandidates({
+    isReady: true,
+    peerId: message.from,
+  });
+  await rtcPeerConnectionManager.drainIceCandidates({ peerId: message.from });
 }

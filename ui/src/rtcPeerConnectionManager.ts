@@ -4,6 +4,8 @@ export type VideoPeerConnection = {
   peerId: string;
   remoteMediaStream: MediaStream;
   rtcPeerConnection: RTCPeerConnection;
+  remoteIceCandidates: RTCIceCandidateInit[];
+  readyToForwardRemoteIceCandidates: boolean;
 };
 
 class RtcPeerConnectionManager {
@@ -80,11 +82,10 @@ class RtcPeerConnectionManager {
       peerId,
       rtcPeerConnection,
       remoteMediaStream,
+      readyToForwardRemoteIceCandidates: false,
+      remoteIceCandidates: [],
     });
-    for (let index = 0; index < this.listeners.length; index++) {
-      const listener = this.listeners[index];
-      listener();
-    }
+    this.listeners.forEach((listener) => listener());
 
     rtcPeerConnection.ontrack = (event) => {
       event.streams[0].getTracks().forEach((track) => {
@@ -100,6 +101,54 @@ class RtcPeerConnectionManager {
     return Array.from(this.videoPeerConnections).map(
       ([_peerId, peerConnection]) => peerConnection
     );
+  }
+
+  setReadyToForwardRemoteIceCandidates({
+    peerId,
+    isReady,
+  }: {
+    peerId: string;
+    isReady: boolean;
+  }) {
+    const rtcPeerConnection = this.videoPeerConnections.get(peerId);
+    if (!rtcPeerConnection) {
+      throw new Error("could not get video peer connection ");
+    }
+    rtcPeerConnection.readyToForwardRemoteIceCandidates = isReady;
+  }
+
+  addIceCandidates({
+    peerId,
+    iceCandidate,
+  }: {
+    peerId: string;
+    iceCandidate: RTCIceCandidateInit;
+  }) {
+    const rtcPeerConnection = this.videoPeerConnections.get(peerId);
+    if (!rtcPeerConnection) {
+      throw new Error("could not get video peer connection ");
+    }
+    rtcPeerConnection.remoteIceCandidates.push(iceCandidate);
+  }
+
+  async drainIceCandidates({ peerId }: { peerId: string }): Promise<void> {
+    const rtcPeerConnection = this.videoPeerConnections.get(peerId);
+    if (!rtcPeerConnection) {
+      throw new Error("could not get video peer connection ");
+    }
+    if (!rtcPeerConnection.readyToForwardRemoteIceCandidates) return;
+    await Promise.all(
+      rtcPeerConnection.remoteIceCandidates.map(async (iceCandidate) => {
+        try {
+          await rtcPeerConnection.rtcPeerConnection.addIceCandidate(
+            iceCandidate
+          );
+        } catch (e) {
+          console.log("ice candidate error:", e);
+        }
+      })
+    );
+    rtcPeerConnection.remoteIceCandidates = [];
   }
 }
 

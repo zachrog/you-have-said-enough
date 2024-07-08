@@ -103,7 +103,7 @@ type MessageListener = (
 
 export async function clientNewIceCandidate(message: ClientWebsocketMessage) {
   if (message.action !== "newIceCandidate") return;
-  rtcPeerConnectionManager.addIceCandidates({
+  rtcPeerConnectionManager.addIceCandidates({ // Sometimes We receive an icecandidate before we have created a peer connection. Messages Happen out of order.
     peerId: message.from,
     iceCandidate: message.data,
   });
@@ -119,13 +119,13 @@ export async function someoneNewJoined(message: ClientWebsocketMessage) {
       myConnectionId: socketClient.myConnectionId,
     });
   const newOffer = await rtcPeerConnection.createOffer();
-  await rtcPeerConnection.setLocalDescription(newOffer);
   socketClient.sendMessage({
     action: "newOffer",
     from: socketClient.myConnectionId,
     to: message.from,
     data: newOffer,
   });
+  await rtcPeerConnection.setLocalDescription(newOffer);
 }
 
 export async function clientNewAnswer(message: ClientWebsocketMessage) {

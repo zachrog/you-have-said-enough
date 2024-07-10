@@ -6,9 +6,14 @@ export function VideoComponent({
   stream,
   local,
   connectionId,
+  setTimeTalkingInWindow,
 }: {
   stream: MediaStream;
   connectionId: string;
+  setTimeTalkingInWindow: (params: {
+    connectionId: string;
+    timeTalkingInWindow: number;
+  }) => void;
   local?: boolean;
 }) {
   const [isTalking, setIsTalking] = useState(false);
@@ -83,6 +88,7 @@ export function VideoComponent({
           timeTalkingInWindow =
             timeTalkingInWindow - deletedEntry.timeSpentTalking;
         }
+        setTimeTalkingInWindow({ connectionId, timeTalkingInWindow });
 
         setScalingProportion(
           calculateScalingProportion({

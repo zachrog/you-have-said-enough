@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { VideoComponent } from "./components/VideoComponent";
+import { VideoComponent } from "../components/VideoComponent";
 import {
   VideoPeerConnection,
   rtcPeerConnectionManager,
-} from "./rtcPeerConnectionManager";
+} from "../rtcPeerConnectionManager";
 import {
   SocketClient,
   getSocketClient,
@@ -12,6 +12,7 @@ import {
   clientNewAnswer,
   clientNewOffer,
 } from "@/socketClient";
+import { MediaBar } from "@/components/MediaBar";
 
 export function RoomPage() {
   const [myConnectionId, setMyConnectionId] = useState<string>("");
@@ -68,25 +69,28 @@ export function RoomPage() {
 
   return (
     <>
-      <div className="flex gap-4 p-4 flex-wrap">
-        {localStream && (
-          <VideoComponent
-            stream={localStream}
-            local
-            connectionId={myConnectionId}
-          />
-        )}
-        {peerConnections.map((remoteConnection) => {
-          return (
-            <>
-              <VideoComponent
-                stream={remoteConnection.remoteMediaStream}
-                connectionId={remoteConnection.peerId}
-                key={remoteConnection.peerId}
-              />
-            </>
-          );
-        })}
+      <div>
+        <div className="flex gap-4 p-4 flex-wrap">
+          {localStream && (
+            <VideoComponent
+              stream={localStream}
+              local
+              connectionId={myConnectionId}
+            />
+          )}
+          {peerConnections.map((remoteConnection) => {
+            return (
+              <>
+                <VideoComponent
+                  stream={remoteConnection.remoteMediaStream}
+                  connectionId={remoteConnection.peerId}
+                  key={remoteConnection.peerId}
+                />
+              </>
+            );
+          })}
+        </div>
+        <MediaBar />
       </div>
     </>
   );

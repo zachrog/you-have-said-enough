@@ -13,7 +13,7 @@ import {
   clientNewOffer,
 } from "@/socketClient";
 
-export function RoomComponent() {
+export function RoomPage() {
   const [myConnectionId, setMyConnectionId] = useState<string>("");
   const [localStream, setStream] = useState<MediaStream | null>(null);
   const [peerConnections, setPeerConnections] = useState<VideoPeerConnection[]>(

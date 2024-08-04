@@ -104,8 +104,8 @@ export function VideoComponent({
 
   return (
     <div>
-      <p>ConnectionId {connectionId}</p>
-      <p>Time spent talking {timeTalkingDisplay}</p>
+      {/* <p>ConnectionId {connectionId}</p>
+      <p>Time spent talking {timeTalkingDisplay}</p> */}
       <video
         className={clsx([
           "aspect-video",

@@ -77,6 +77,21 @@ Create an inverseProportion
 Apply the scaling dduring the next monitoring window
 So apply 0.3 scaling to audio/video during next session.
 
+# Speech currency. There is a total amount of speaking currency in the room. It is traded around as you talk.
+3 people start the conversation and each have 5s of talking time
+
+As one person speaks they donate all of their speech to others. Below is the "currency" of each member 
+
+Person 1: 0s;
+Person 2: 7.5s;
+Person 3: 7.5s;
+
+The only way to gain speech currency back is by having other people talk. Below is the currency if Person 2 were to talk for 5s.
+
+Person 1: 2.5s;
+Person 2: 2.5s;
+Person 3: 10s;
+
 # Hogger/Facilitator
 
 - One person talking for all the time is bad, they are hogging the airtime and need to be debuffed

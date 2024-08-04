@@ -1,6 +1,6 @@
+import { RoomPage } from "@/pages/RoomPage";
 import { Button } from "./components/ui/button";
 import { useState } from "react";
-import { RoomPage } from "./RoomComponent";
 
 function App() {
   const [joinedRoom, setJoinedRoom] = useState(false);

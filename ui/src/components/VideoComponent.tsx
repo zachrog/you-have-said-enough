@@ -103,16 +103,12 @@ export function VideoComponent({
   }, []);
 
   return (
-    <div>
-      {/* <p>ConnectionId {connectionId}</p>
-      <p>Time spent talking {timeTalkingDisplay}</p> */}
+    <div className="flex grow shrink">
       <video
         className={clsx([
-          "aspect-video",
           "box-border",
           "bg-gray-800",
           "min-w-28",
-          "max-w-90",
           "flex-1",
           "rounded-lg",
           isTalking && "border-emerald-400",

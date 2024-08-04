@@ -109,6 +109,7 @@ export function VideoComponent({
       <video
         className={clsx([
           "aspect-video",
+          "box-border",
           "bg-gray-800",
           "min-w-28",
           "max-w-90",

@@ -6,7 +6,7 @@ function App() {
   const [joinedRoom, setJoinedRoom] = useState(false);
   return (
     <>
-      <div className="flex flex-col h-screen">
+      <div className="">
         {!joinedRoom && (
           <Button onClick={() => setJoinedRoom(true)}>
             Join if you D.A.R.E.

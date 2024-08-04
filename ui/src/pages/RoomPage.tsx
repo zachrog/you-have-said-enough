@@ -69,8 +69,8 @@ export function RoomPage() {
 
   return (
     <>
-      <div>
-        <div className="flex gap-4 p-4 flex-wrap">
+      <div className="h-screen w-full flex flex-col">
+        <div className="flex-1 relative grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 p-4">
           {localStream && (
             <VideoComponent
               stream={localStream}

@@ -19,19 +19,6 @@ export function RoomComponent() {
   const [peerConnections, setPeerConnections] = useState<VideoPeerConnection[]>(
     []
   );
-  // const [localTimeTalkingInWindow, setLocalTimeTalkingInWindow] = useState(0);
-  const [remoteTimeTalkingMap, setRemoteTimeTalkingMap] = useState<{
-    [key: string]: number;
-  }>({});
-  function setRemoteTimeTalkingInWindow(params: {
-    connectionId: string;
-    timeTalkingInWindow: number;
-  }) {
-    setRemoteTimeTalkingMap({
-      ...remoteTimeTalkingMap,
-      [params.connectionId]: params.timeTalkingInWindow,
-    });
-  }
 
   useEffect(() => {
     // need to set remote streams
@@ -87,7 +74,6 @@ export function RoomComponent() {
             stream={localStream}
             local
             connectionId={myConnectionId}
-            setTimeTalkingInWindow={setRemoteTimeTalkingInWindow}
           />
         )}
         {peerConnections.map((remoteConnection) => {
@@ -97,26 +83,10 @@ export function RoomComponent() {
                 stream={remoteConnection.remoteMediaStream}
                 connectionId={remoteConnection.peerId}
                 key={remoteConnection.peerId}
-                setTimeTalkingInWindow={setRemoteTimeTalkingInWindow}
               />
             </>
           );
         })}
-      </div>
-      <div>
-        <h1>Room Stats</h1>
-        {Object.entries(remoteTimeTalkingMap).map(
-          ([connectionId, timeSpentTalking]) => {
-            return (
-              <>
-                <p>
-                  connectionId : {connectionId}, timeSpentTalking :{" "}
-                  {timeSpentTalking}
-                </p>
-              </>
-            );
-          }
-        )}
       </div>
     </>
   );

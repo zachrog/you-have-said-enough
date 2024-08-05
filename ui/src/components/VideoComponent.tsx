@@ -6,15 +6,30 @@ export function VideoComponent({
   stream,
   local,
   connectionId,
+  speakerId,
 }: {
   stream: MediaStream;
   connectionId: string;
   local?: boolean;
+  speakerId: string;
 }) {
   const [isTalking, setIsTalking] = useState(false);
   const [timeTalkingDisplay, setTimeTalking] = useState(0);
   const [scalingProportion, setScalingProportion] = useState(1);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      setOutputDevice(videoRef.current, speakerId);
+    }
+
+    async function setOutputDevice(
+      videoElement: HTMLVideoElement,
+      speakerId: string
+    ) {
+      await videoElement.setSinkId(speakerId);
+    }
+  }, [videoRef, speakerId]);
 
   useEffect(() => {
     if (videoRef.current) {

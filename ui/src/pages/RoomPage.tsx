@@ -20,7 +20,8 @@ export function RoomPage() {
   const [peerConnections, setPeerConnections] = useState<VideoPeerConnection[]>(
     []
   );
-  const totalVideos = 4;
+  const [speakerId, setSpeakerId] = useState("");
+  // const totalVideos = 1;
 
   useEffect(() => {
     // need to set remote streams
@@ -72,20 +73,30 @@ export function RoomPage() {
     <>
       <div className="h-screen w-full flex flex-col justify-between flex-none">
         <div className="flex flex-row flex-wrap relative gap-2 p-4">
-          {localStream &&
+          {/* {localStream &&  // Used for testing when you have no friends :(
             new Array(totalVideos)
               .fill(undefined)
               .map(() => (
                 <VideoComponent
+                  speakerId={speakerId}
                   stream={localStream}
                   local
                   connectionId={myConnectionId}
                 />
-              ))}
+              ))} */}
+          {localStream && (
+            <VideoComponent
+              speakerId={speakerId}
+              stream={localStream}
+              local
+              connectionId={myConnectionId}
+            />
+          )}
           {peerConnections.map((remoteConnection) => {
             return (
               <>
                 <VideoComponent
+                  speakerId={speakerId}
                   stream={remoteConnection.remoteMediaStream}
                   connectionId={remoteConnection.peerId}
                   key={remoteConnection.peerId}
@@ -94,7 +105,7 @@ export function RoomPage() {
             );
           })}
         </div>
-        <MediaBar />
+        <MediaBar speakerId={speakerId} setSpeakerId={setSpeakerId} />
       </div>
     </>
   );

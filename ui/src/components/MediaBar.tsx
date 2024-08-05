@@ -14,24 +14,31 @@ import {
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
 
-export function MediaBar() {
+export function MediaBar({
+  speakerId,
+  setSpeakerId,
+}: {
+  speakerId: string;
+  setSpeakerId: (speakerId: string) => void;
+}) {
   const [selectedMicrophone, setSelectedMicrophone] = useState("");
   const [microphones, setMicrophones] = useState<MediaDeviceInfo[]>([]);
-  const [selectedSpeaker, setSelectedSpeaker] = useState("");
   const [speakers, setSpeakers] = useState<MediaDeviceInfo[]>([]);
 
   useEffect(() => {
-    async function getMicrophones() {
+    async function initMediaDevices() {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const mics = devices.filter((device) => device.kind === "audioinput");
       const speakers = devices.filter(
         (device) => device.kind === "audiooutput"
       );
+      setSelectedMicrophone(mics[0].deviceId);
+      setSpeakerId(speakers[0].deviceId);
       setMicrophones(mics);
       setSpeakers(speakers);
     }
 
-    getMicrophones();
+    initMediaDevices();
   }, []);
 
   return (
@@ -41,6 +48,7 @@ export function MediaBar() {
           <MicIcon />
           <Select
             onValueChange={(micDeviceId) => setSelectedMicrophone(micDeviceId)}
+            value={selectedMicrophone}
           >
             <SelectTrigger className="w-60">
               <SelectValue placeholder="Select microphone" />
@@ -48,7 +56,10 @@ export function MediaBar() {
             <SelectContent>
               {microphones.map((microphone) => (
                 <>
-                  <SelectItem value={microphone.deviceId}>
+                  <SelectItem
+                    value={microphone.deviceId}
+                    key={microphone.deviceId + microphone.label}
+                  >
                     {microphone.label}
                   </SelectItem>
                 </>
@@ -58,16 +69,17 @@ export function MediaBar() {
         </div>
         <div className="flex items-center gap-2 ml-4">
           <SpeakerIcon />
-          <Select
-            onValueChange={(micDeviceId) => setSelectedSpeaker(micDeviceId)}
-          >
+          <Select value={speakerId} onValueChange={(id) => setSpeakerId(id)}>
             <SelectTrigger className="w-60">
               <SelectValue placeholder="Select speaker" />
             </SelectTrigger>
             <SelectContent>
               {speakers.map((speaker) => (
                 <>
-                  <SelectItem value={speaker.deviceId}>
+                  <SelectItem
+                    value={speaker.deviceId}
+                    key={speaker.deviceId + speaker.label}
+                  >
                     {speaker.label}
                   </SelectItem>
                 </>

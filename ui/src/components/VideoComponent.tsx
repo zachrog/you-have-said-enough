@@ -118,7 +118,7 @@ export function VideoComponent({
   }, []);
 
   return (
-    <div className="flex grow shrink">
+    <div className="relative h-full w-full">
       <video
         className={clsx([
           "box-border",

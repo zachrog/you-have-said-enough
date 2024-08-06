@@ -92,6 +92,10 @@ Person 1: 2.5s;
 Person 2: 2.5s;
 Person 3: 10s;
 
+# Video layout. All videos have a "gravity" and are dynamically being pulled toward the center
+- Videos are colliding with one another and have a gravity based on their size.
+- Videos would slip past one another as their weights are changing.
+
 # Hogger/Facilitator
 
 - One person talking for all the time is bad, they are hogging the airtime and need to be debuffed

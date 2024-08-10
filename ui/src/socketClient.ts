@@ -14,14 +14,10 @@ export type ClientWebsocketMessage = {
   roomId: string;
 };
 
-let socketClientCache: SocketClient;
-export async function getSocketClient(): Promise<SocketClient> {
-  if (!socketClientCache) {
-    socketClientCache = new SocketClient();
-    await socketClientCache.init();
-  }
-
-  return socketClientCache;
+export async function createSocketClient(): Promise<SocketClient> {
+  const socketClient = new SocketClient();
+  await socketClient.init();
+  return socketClient;
 }
 
 export class SocketClient {
@@ -113,14 +109,17 @@ export async function clientNewIceCandidate(message: ClientWebsocketMessage) {
   await rtcPeerConnectionManager.drainIceCandidates({ peerId: message.from });
 }
 
-export async function someoneNewJoined(message: ClientWebsocketMessage) {
+export async function someoneNewJoined(
+  message: ClientWebsocketMessage,
+  socketClient: SocketClient
+) {
   if (message.action !== "newUserJoined") return;
-  const socketClient = await getSocketClient();
   const rtcPeerConnection =
     await rtcPeerConnectionManager.createRtcPeerConnection({
       peerId: message.from,
       myConnectionId: socketClient.myConnectionId,
       roomId: message.roomId,
+      socketClient,
     });
   const newOffer = await rtcPeerConnection.createOffer();
   socketClient.sendMessage({
@@ -150,13 +149,16 @@ export async function clientNewAnswer(message: ClientWebsocketMessage) {
   await rtcPeerConnectionManager.drainIceCandidates({ peerId: message.from });
 }
 
-export async function clientNewOffer(message: ClientWebsocketMessage) {
+export async function clientNewOffer(
+  message: ClientWebsocketMessage,
+  socketClient: SocketClient
+) {
   if (message.action !== "newOffer") return;
-  const socketClient = await getSocketClient();
   const rTCPeerConnection = rtcPeerConnectionManager.createRtcPeerConnection({
     peerId: message.from,
     myConnectionId: socketClient.myConnectionId,
     roomId: message.roomId,
+    socketClient,
   });
   await rTCPeerConnection.setRemoteDescription(
     new RTCSessionDescription(message.data)

@@ -1,4 +1,4 @@
-import { getSocketClient } from "@/socketClient";
+import { SocketClient } from "@/socketClient";
 
 export type VideoPeerConnection = {
   peerId: string;
@@ -46,10 +46,12 @@ class RtcPeerConnectionManager {
     peerId,
     myConnectionId,
     roomId,
+    socketClient,
   }: {
     peerId: string;
     myConnectionId: string;
     roomId: string;
+    socketClient: SocketClient;
   }): RTCPeerConnection {
     const rtcPeerConnection = new RTCPeerConnection(this.iceServers);
     this.localMediaStream.getTracks().forEach((track) => {
@@ -58,7 +60,6 @@ class RtcPeerConnectionManager {
 
     rtcPeerConnection.addEventListener("icecandidate", async (event) => {
       if (event.candidate) {
-        const socketClient = await getSocketClient();
         socketClient.sendMessage({
           roomId: roomId,
           action: "newIceCandidate",

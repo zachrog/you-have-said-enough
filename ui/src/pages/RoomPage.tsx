@@ -6,7 +6,7 @@ import {
 } from "../rtcPeerConnectionManager";
 import {
   SocketClient,
-  getSocketClient,
+  createSocketClient,
   someoneNewJoined,
   clientNewIceCandidate,
   clientNewAnswer,
@@ -23,6 +23,9 @@ export function RoomPage() {
     []
   );
   const [speakerId, setSpeakerId] = useState("");
+  const [socketClient, setSocketClient] = useState<SocketClient | undefined>(
+    undefined
+  );
   const totalVideos = 3;
 
   useEffect(() => {
@@ -48,27 +51,31 @@ export function RoomPage() {
 
   useEffect(() => {
     if (!localStream) return;
-    let socketClient: SocketClient;
     const initSocketClient = async () => {
-      socketClient = await getSocketClient();
-      setMyConnectionId(socketClient.myConnectionId);
-      socketClient.addMessageListener(clientNewIceCandidate);
-      socketClient.addMessageListener(someoneNewJoined);
-      socketClient.addMessageListener(clientNewAnswer);
-      socketClient.addMessageListener(clientNewOffer);
-      socketClient.sendMessage({
+      const newSocketClient = await createSocketClient();
+      setMyConnectionId(newSocketClient.myConnectionId);
+      newSocketClient.addMessageListener(clientNewIceCandidate);
+      newSocketClient.addMessageListener((message) => {
+        someoneNewJoined(message, newSocketClient);
+      });
+      newSocketClient.addMessageListener(clientNewAnswer);
+      newSocketClient.addMessageListener((message) => {
+        clientNewOffer(message, newSocketClient);
+      });
+      newSocketClient.sendMessage({
         roomId: roomId!,
         action: "enterRoom",
         data: "",
         from: "",
         to: "",
       });
+      setSocketClient(newSocketClient);
     };
 
     initSocketClient();
 
     return () => {
-      socketClient.close();
+      socketClient?.close();
     };
   }, [localStream]);
 

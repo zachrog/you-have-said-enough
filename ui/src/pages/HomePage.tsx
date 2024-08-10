@@ -17,7 +17,8 @@ export function HomePage() {
           <div className="w-full max-w-[600px] rounded-full border-white border-2 antialiased">
             <form
               className="flex items-center rounded-full bg-background px-4 py-2 shadow-sm"
-              onSubmit={() => {
+              onSubmit={(e) => {
+                e.preventDefault();
                 navigate(`/room/${roomId}`);
               }}
             >

@@ -2,3 +2,4 @@
 - Allow user to switch mic/camera and have it be updated on remote streams
 - Mute yourself and leave call functionality
 - Create a landing page
+- Low Pass filter on sizing

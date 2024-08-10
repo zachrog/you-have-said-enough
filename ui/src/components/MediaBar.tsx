@@ -55,14 +55,12 @@ export function MediaBar({
             </SelectTrigger>
             <SelectContent>
               {microphones.map((microphone) => (
-                <>
-                  <SelectItem
-                    value={microphone.deviceId}
-                    key={microphone.deviceId + microphone.label}
-                  >
-                    {microphone.label}
-                  </SelectItem>
-                </>
+                <SelectItem
+                  value={microphone.deviceId}
+                  key={microphone.deviceId + microphone.label}
+                >
+                  {microphone.label}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -75,14 +73,12 @@ export function MediaBar({
             </SelectTrigger>
             <SelectContent>
               {speakers.map((speaker) => (
-                <>
-                  <SelectItem
-                    value={speaker.deviceId}
-                    key={speaker.deviceId + speaker.label}
-                  >
-                    {speaker.label}
-                  </SelectItem>
-                </>
+                <SelectItem
+                  value={speaker.deviceId}
+                  key={speaker.deviceId + speaker.label}
+                >
+                  {speaker.label}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>

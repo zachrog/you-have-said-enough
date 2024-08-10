@@ -81,6 +81,7 @@ export function RoomPage() {
               .fill(undefined)
               .map(() => (
                 <VideoComponent
+                  key={Math.random()}
                   speakerId={speakerId}
                   stream={localStream}
                   local

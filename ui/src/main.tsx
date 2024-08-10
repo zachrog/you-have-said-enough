@@ -1,13 +1,13 @@
 import ReactDOM from "react-dom/client";
-import App from "./App.tsx";
+import { HomePage } from "./App";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { RoomPage } from '@/pages/RoomPage.tsx';
+import { RoomPage } from "@/pages/RoomPage.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <HomePage />,
   },
   {
     path: "room/:roomId",

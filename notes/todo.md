@@ -1,3 +1,4 @@
 - Create multiple rooms to be able to join
 - Create smooth video sizing as people join and leave
 - Allow user to switch mic/camera and have it be updated on remote streams
+- Mute yourself and leave call functionality

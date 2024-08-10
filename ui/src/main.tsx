@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom/client";
-import { HomePage } from "./App";
+import { HomePage } from "./pages/HomePage";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { RoomPage } from "@/pages/RoomPage.tsx";

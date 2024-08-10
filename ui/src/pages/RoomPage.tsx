@@ -13,8 +13,10 @@ import {
   clientNewOffer,
 } from "@/socketClient";
 import { MediaBar } from "@/components/MediaBar";
+import { useParams } from "react-router-dom";
 
 export function RoomPage() {
+  const { roomId } = useParams();
   const [myConnectionId, setMyConnectionId] = useState<string>("");
   const [localStream, setStream] = useState<MediaStream | null>(null);
   const [peerConnections, setPeerConnections] = useState<VideoPeerConnection[]>(
@@ -22,6 +24,7 @@ export function RoomPage() {
   );
   const [speakerId, setSpeakerId] = useState("");
   const totalVideos = 9;
+  console.log({ roomId });
 
   useEffect(() => {
     // need to set remote streams

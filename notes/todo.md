@@ -1,5 +1,4 @@
 - Create multiple rooms instead of just one.
-- Create statistics to monitor how much a person has been talking over a certain window of time.
-- Make a speaker and mic selector
-- Separate App.tsx from Room using a router
-- Use new websocket client
+- Create multiple rooms to be able to join
+- Create smooth video sizing as people join and leave
+- Allow user to switch mic/camera and have it be updated on remote streams

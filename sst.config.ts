@@ -15,9 +15,14 @@ export default $config({
       fields: {
         pk: "string",
         sk: "string",
+        pk2: "string",
+        sk2: "string",
       },
       ttl: "ttl",
       primaryIndex: { hashKey: "pk", rangeKey: "sk" },
+      globalIndexes: {
+        gsi2: { hashKey: "pk2", rangeKey: "sk2" },
+      },
     });
     const dbName = dynamoDb.name;
 

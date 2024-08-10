@@ -21,7 +21,7 @@ class RtcPeerConnectionManager {
     ],
     iceCandidatePoolSize: 10,
   };
-  private localMediaStream: MediaStream;
+  private localMediaStream: MediaStream; // Ignore for now. We should create this ASAP
   listeners: Function[] = [];
 
   constructor() {}
@@ -45,9 +45,11 @@ class RtcPeerConnectionManager {
   createRtcPeerConnection({
     peerId,
     myConnectionId,
+    roomId,
   }: {
     peerId: string;
     myConnectionId: string;
+    roomId: string;
   }): RTCPeerConnection {
     const rtcPeerConnection = new RTCPeerConnection(this.iceServers);
     this.localMediaStream.getTracks().forEach((track) => {
@@ -58,6 +60,7 @@ class RtcPeerConnectionManager {
       if (event.candidate) {
         const socketClient = await getSocketClient();
         socketClient.sendMessage({
+          roomId: roomId,
           action: "newIceCandidate",
           to: peerId,
           from: myConnectionId,
@@ -140,9 +143,7 @@ class RtcPeerConnectionManager {
     await Promise.all(
       peer.remoteIceCandidates.map(async (iceCandidate) => {
         try {
-          await peer.rtcPeerConnection.addIceCandidate(
-            iceCandidate
-          );
+          await peer.rtcPeerConnection.addIceCandidate(iceCandidate);
         } catch (e) {
           console.log("ice candidate error:", e);
         }

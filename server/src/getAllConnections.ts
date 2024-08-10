@@ -2,9 +2,9 @@ import { ConnectionRecord } from "server/src/storeConnection";
 import { environment } from "./environment";
 import { getDynamo } from "./getDynamo";
 
-export async function getAllConnections(): Promise<
-  Map<string, { connectionId: string }>
-> {
+export async function getAllConnections(
+  roomId: string
+): Promise<Map<string, { connectionId: string }>> {
   const dynamoDb = getDynamo();
   const dbName = environment.dynamoTableName;
   const result = await dynamoDb.query({
@@ -14,7 +14,7 @@ export async function getAllConnections(): Promise<
       "#sk": "sk",
     },
     ExpressionAttributeValues: {
-      ":pk": "room|4206969",
+      ":pk": `room|${roomId}`,
       ":sk": "user|",
     },
     KeyConditionExpression: "#pk = :pk and begins_with(#sk, :sk)",

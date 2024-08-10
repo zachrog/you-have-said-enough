@@ -5,16 +5,14 @@ import { calculateScalingProportion } from "@/lib/audioStatistics";
 export function VideoComponent({
   stream,
   local,
-  connectionId,
   speakerId,
 }: {
   stream: MediaStream;
-  connectionId: string;
   local?: boolean;
   speakerId: string;
 }) {
   const [isTalking, setIsTalking] = useState(false);
-  const [timeTalkingDisplay, setTimeTalking] = useState(0);
+  // const [timeTalkingDisplay, setTimeTalking] = useState(0);
   const [scalingProportion, setScalingProportion] = useState(1);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -105,7 +103,7 @@ export function VideoComponent({
             timeTalkingInWindow,
           })
         );
-        setTimeTalking(timeTalkingInWindow);
+        // setTimeTalking(timeTalkingInWindow);
         timeOfLastSample = now;
         requestAnimationFrame(analyzeAudio);
       }

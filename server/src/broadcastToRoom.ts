@@ -30,7 +30,7 @@ async function broadcastToRoom({
   myConnectionId: string;
   message: ClientWebsocketMessage;
 }) {
-  const connectionIds = await getAllConnections();
+  const connectionIds = await getAllConnections(message.roomId);
   connectionIds.delete(myConnectionId);
 
   const socketClient = getSocketClient();

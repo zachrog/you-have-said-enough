@@ -17,6 +17,7 @@ export type ServerWebsocketMessage = {
   to: string;
   from: string;
   data: any;
+  roomId: string;
 };
 
 export async function disconnectHandler(
@@ -40,6 +41,7 @@ export async function defaultHandler(
           action: "yourConnectionId",
           data: event.requestContext.connectionId,
           from: "server",
+          roomId: "", // roomId is not needed for this message
         },
       });
       break;
@@ -59,7 +61,10 @@ export async function defaultHandler(
       });
       break;
     case "enterRoom":
-      await enterRoom({ myConnectionId: event.requestContext.connectionId });
+      await enterRoom({
+        myConnectionId: event.requestContext.connectionId,
+        roomId: message.roomId,
+      });
       break;
     default:
       throw new Error("unknown action in message");

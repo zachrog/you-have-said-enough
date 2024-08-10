@@ -11,6 +11,7 @@ export type ClientWebsocketMessage = {
   to: string;
   from: string;
   data: any;
+  roomId: string;
 };
 
 let socketClientCache: SocketClient;
@@ -53,6 +54,7 @@ export class SocketClient {
 
         this.addMessageListener(connectionIdListener);
         this.sendMessage({
+          roomId: "",
           action: "yourConnectionId",
           from: "",
           to: "",
@@ -103,7 +105,8 @@ type MessageListener = (
 
 export async function clientNewIceCandidate(message: ClientWebsocketMessage) {
   if (message.action !== "newIceCandidate") return;
-  rtcPeerConnectionManager.addIceCandidates({ // Sometimes We receive an icecandidate before we have created a peer connection. Messages Happen out of order.
+  rtcPeerConnectionManager.addIceCandidates({
+    // Sometimes We receive an icecandidate before we have created a peer connection. Messages Happen out of order.
     peerId: message.from,
     iceCandidate: message.data,
   });
@@ -117,9 +120,11 @@ export async function someoneNewJoined(message: ClientWebsocketMessage) {
     await rtcPeerConnectionManager.createRtcPeerConnection({
       peerId: message.from,
       myConnectionId: socketClient.myConnectionId,
+      roomId: message.roomId,
     });
   const newOffer = await rtcPeerConnection.createOffer();
   socketClient.sendMessage({
+    roomId: message.roomId,
     action: "newOffer",
     from: socketClient.myConnectionId,
     to: message.from,
@@ -151,6 +156,7 @@ export async function clientNewOffer(message: ClientWebsocketMessage) {
   const rTCPeerConnection = rtcPeerConnectionManager.createRtcPeerConnection({
     peerId: message.from,
     myConnectionId: socketClient.myConnectionId,
+    roomId: message.roomId,
   });
   await rTCPeerConnection.setRemoteDescription(
     new RTCSessionDescription(message.data)
@@ -162,6 +168,7 @@ export async function clientNewOffer(message: ClientWebsocketMessage) {
     to: message.from,
     from: socketClient.myConnectionId,
     data: answer,
+    roomId: message.roomId,
   });
   rtcPeerConnectionManager.setReadyToForwardRemoteIceCandidates({
     isReady: true,

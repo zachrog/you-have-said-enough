@@ -17,14 +17,13 @@ import { useParams } from "react-router-dom";
 
 export function RoomPage() {
   const { roomId } = useParams();
-  const [myConnectionId, setMyConnectionId] = useState<string>("");
+  const [_, setMyConnectionId] = useState<string>("");
   const [localStream, setStream] = useState<MediaStream | null>(null);
   const [peerConnections, setPeerConnections] = useState<VideoPeerConnection[]>(
     []
   );
   const [speakerId, setSpeakerId] = useState("");
-  const totalVideos = 9;
-  console.log({ roomId });
+  const totalVideos = 3;
 
   useEffect(() => {
     // need to set remote streams
@@ -58,6 +57,7 @@ export function RoomPage() {
       socketClient.addMessageListener(clientNewAnswer);
       socketClient.addMessageListener(clientNewOffer);
       socketClient.sendMessage({
+        roomId: roomId!,
         action: "enterRoom",
         data: "",
         from: "",
@@ -84,7 +84,6 @@ export function RoomPage() {
                   speakerId={speakerId}
                   stream={localStream}
                   local
-                  connectionId={myConnectionId}
                 />
               ))}
           {/* {localStream && (
@@ -92,7 +91,6 @@ export function RoomPage() {
               speakerId={speakerId}
               stream={localStream}
               local
-              connectionId={myConnectionId}
             />
           )} */}
           {peerConnections.map((remoteConnection) => {
@@ -101,7 +99,6 @@ export function RoomPage() {
                 <VideoComponent
                   speakerId={speakerId}
                   stream={remoteConnection.remoteMediaStream}
-                  connectionId={remoteConnection.peerId}
                   key={remoteConnection.peerId}
                 />
               </>

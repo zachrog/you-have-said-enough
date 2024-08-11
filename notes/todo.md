@@ -1,4 +1,3 @@
 - Create smooth video sizing as people join and leave
-- Mute yourself and leave call functionality
 - Low Pass filter on sizing
 - evaluate how to limit explosive costs in AWS

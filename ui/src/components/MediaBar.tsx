@@ -22,6 +22,8 @@ export function MediaBar({
   onSpeakerChange,
   micId,
   onMicChange,
+  cameraId,
+  onCameraChange,
   isMuted,
   onMicMuteChange,
   cameraIsDisabled,
@@ -31,6 +33,8 @@ export function MediaBar({
   onSpeakerChange: (speakerId: string) => void;
   micId: string;
   onMicChange: (micId: string) => void;
+  cameraId: string;
+  onCameraChange: (cameraId: string) => void;
   isMuted: boolean;
   onMicMuteChange: (isMuted: boolean) => void;
   cameraIsDisabled: boolean;
@@ -39,6 +43,7 @@ export function MediaBar({
   const navigate = useNavigate();
   const [microphones, setMicrophones] = useState<MediaDeviceInfo[]>([]);
   const [speakers, setSpeakers] = useState<MediaDeviceInfo[]>([]);
+  const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
 
   useEffect(() => {
     async function initMediaDevices() {
@@ -47,8 +52,10 @@ export function MediaBar({
       const speakers = devices.filter(
         (device) => device.kind === "audiooutput"
       );
+      const cameras = devices.filter((device) => device.kind === "videoinput");
       setMicrophones(mics);
       setSpeakers(speakers);
+      setCameras(cameras);
     }
 
     initMediaDevices();
@@ -88,6 +95,24 @@ export function MediaBar({
                   key={speaker.deviceId + speaker.label}
                 >
                   {speaker.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center gap-2 ml-4">
+          <VideoIcon />
+          <Select value={cameraId} onValueChange={onCameraChange}>
+            <SelectTrigger className="w-60">
+              <SelectValue placeholder="Select camera" />
+            </SelectTrigger>
+            <SelectContent>
+              {cameras.map((camera) => (
+                <SelectItem
+                  value={camera.deviceId}
+                  key={camera.deviceId + camera.label}
+                >
+                  {camera.label}
                 </SelectItem>
               ))}
             </SelectContent>

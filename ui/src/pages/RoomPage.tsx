@@ -23,6 +23,7 @@ export function RoomPage() {
     []
   );
   const [speakerId, setSpeakerId] = useState("default");
+  const [cameraId, setCameraId] = useState("");
   const [socketClient, setSocketClient] = useState<SocketClient | undefined>(
     undefined
   );
@@ -171,6 +172,8 @@ export function RoomPage() {
           onSpeakerChange={setSpeakerId}
           micId={micId}
           onMicChange={handleMicChange}
+          cameraId={cameraId}
+          onCameraChange={setCameraId}
           isMuted={isMuted}
           onMicMuteChange={handleMicMuteChange}
         />

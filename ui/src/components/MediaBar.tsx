@@ -1,5 +1,6 @@
 import {
   MicIcon,
+  MuteIcon,
   PhoneIcon,
   SpeakerIcon,
   VideoIcon,
@@ -20,11 +21,15 @@ export function MediaBar({
   onSpeakerChange,
   micId,
   onMicChange,
+  onMicMuteChange,
+  isMuted,
 }: {
   speakerId: string;
   onSpeakerChange: (speakerId: string) => void;
   micId: string;
   onMicChange: (micId: string) => void;
+  onMicMuteChange: (isMuted: boolean) => void;
+  isMuted: boolean;
 }) {
   const navigate = useNavigate();
   const [microphones, setMicrophones] = useState<MediaDeviceInfo[]>([]);
@@ -85,9 +90,7 @@ export function MediaBar({
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon">
-          <MicIcon className="w-6 h-6" />
-        </Button>
+        <MuteButton isMuted={isMuted} onMicMuteChange={onMicMuteChange} />
         <Button variant="ghost" size="icon">
           <VideoIcon className="w-6 h-6" />
         </Button>
@@ -101,5 +104,38 @@ export function MediaBar({
         </Button>
       </div>
     </div>
+  );
+}
+
+function MuteButton({
+  isMuted,
+  onMicMuteChange,
+}: {
+  isMuted: boolean;
+  onMicMuteChange: (isMuted: boolean) => void;
+}) {
+  if (isMuted) {
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => onMicMuteChange(!isMuted)}
+        title="Unmute"
+        className="bg-red-600 hover:bg-red-500"
+      >
+        <MuteIcon className="w-6 h-6" />
+      </Button>
+    );
+  }
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      title="Mute"
+      onClick={() => onMicMuteChange(!isMuted)}
+    >
+      <MicIcon className="w-6 h-6" />
+    </Button>
   );
 }

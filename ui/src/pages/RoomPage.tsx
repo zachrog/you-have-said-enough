@@ -27,6 +27,8 @@ export function RoomPage() {
     undefined
   );
   const [micId, setMicId] = useState("default");
+  const [isMuted, setIsMuted] = useState(false);
+  const [cameraIsDisabled, setCameraIsDisabled] = useState(false);
   const totalVideos = 1;
 
   useEffect(() => {
@@ -82,6 +84,14 @@ export function RoomPage() {
       }
     };
   }, [localStream, socketClient]);
+
+  async function handleMicMuteChange(isMuted: boolean) {
+    const localAudioTrack = localStream?.getAudioTracks()?.[0];
+    if (localAudioTrack) {
+      localAudioTrack.enabled = !isMuted;
+    }
+    setIsMuted(isMuted);
+  }
 
   async function handleMicChange(micId: string) {
     if (localStream) {
@@ -151,6 +161,8 @@ export function RoomPage() {
           onSpeakerChange={setSpeakerId}
           micId={micId}
           onMicChange={handleMicChange}
+          isMuted={isMuted}
+          onMicMuteChange={handleMicMuteChange}
         />
       </div>
     </>

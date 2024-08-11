@@ -53,6 +53,7 @@ export function MediaBar({
         (device) => device.kind === "audiooutput"
       );
       const cameras = devices.filter((device) => device.kind === "videoinput");
+      onCameraChange(cameras[0].deviceId);
       setMicrophones(mics);
       setSpeakers(speakers);
       setCameras(cameras);
@@ -107,14 +108,16 @@ export function MediaBar({
               <SelectValue placeholder="Select camera" />
             </SelectTrigger>
             <SelectContent>
-              {cameras.map((camera) => (
-                <SelectItem
-                  value={camera.deviceId}
-                  key={camera.deviceId + camera.label}
-                >
-                  {camera.label}
-                </SelectItem>
-              ))}
+              {cameras.map((camera) => {
+                return (
+                  <SelectItem
+                    value={camera.deviceId}
+                    key={camera.deviceId + camera.label}
+                  >
+                    {camera.label}
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
         </div>

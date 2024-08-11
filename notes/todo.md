@@ -1,5 +1,4 @@
 - Create smooth video sizing as people join and leave
-- Allow user to switch mic/camera and have it be updated on remote streams
 - Mute yourself and leave call functionality
 - Low Pass filter on sizing
-- evaluate how to limit expolosive costs in AWS
+- evaluate how to limit explosive costs in AWS

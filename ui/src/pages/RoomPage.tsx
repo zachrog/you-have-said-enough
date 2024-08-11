@@ -84,7 +84,6 @@ export function RoomPage() {
   }, [localStream, socketClient]);
 
   async function handleMicChange(micId: string) {
-    setMicId(micId);
     if (localStream) {
       // Get a new media stream from the selected device
       const newStream = await navigator.mediaDevices.getUserMedia({
@@ -108,6 +107,7 @@ export function RoomPage() {
         });
       oldAudioTrack.stop();
     }
+    setMicId(micId);
   }
 
   return (

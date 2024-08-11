@@ -45,6 +45,7 @@ export function VideoComponent({
   }, [videoRef, scalingProportion]);
 
   useEffect(() => {
+    console.log("audio analyzer useEffect");
     if (local) {
       attachAudioAnalyzer();
     } else {
@@ -115,7 +116,8 @@ export function VideoComponent({
 
     return () =>
       stream.removeEventListener("alltracksadded", attachAudioAnalyzer);
-  }, []);
+    // might need to clean up resources from the audio analyzer
+  }, [micId]);
 
   return (
     <div className="relative h-full w-full">

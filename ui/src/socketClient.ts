@@ -26,7 +26,7 @@ export class SocketClient {
     original: MessageListener;
     parsed: (message: MessageEvent) => void;
   }[] = [];
-  private websocketUrl: string = import.meta.env.VITE_WEBSOCKET_URL;
+  private websocketUrl: string = import.meta.env.VITE_WEBSOCKET_URL; // Looks similar to wss://xxxxxx.execute-api.us-east-1.amazonaws.com/$default
   myConnectionId: string = "noId";
 
   constructor() {

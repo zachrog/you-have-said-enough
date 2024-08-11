@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export function MediaBar({
   speakerId,
@@ -25,6 +26,7 @@ export function MediaBar({
   micId: string;
   onMicChange: (micId: string) => void;
 }) {
+  const navigate = useNavigate();
   const [microphones, setMicrophones] = useState<MediaDeviceInfo[]>([]);
   const [speakers, setSpeakers] = useState<MediaDeviceInfo[]>([]);
 
@@ -89,7 +91,12 @@ export function MediaBar({
         <Button variant="ghost" size="icon">
           <VideoIcon className="w-6 h-6" />
         </Button>
-        <Button variant="ghost" size="icon">
+        <Button
+          className="hover:bg-red-500"
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/")}
+        >
           <PhoneIcon className="w-6 h-6" />
         </Button>
       </div>

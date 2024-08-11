@@ -84,35 +84,29 @@ export function RoomPage() {
   }, [localStream, socketClient]);
 
   async function handleMicChange(micId: string) {
-    console.log("slected mic Id: ", micId);
-    console.log("slected speaker Id: ", speakerId);
     setMicId(micId);
-    try {
-      if (localStream) {
-        // Get a new media stream from the selected device
-        const newStream = await navigator.mediaDevices.getUserMedia({
-          audio: { deviceId: { exact: micId } },
-        });
+    if (localStream) {
+      // Get a new media stream from the selected device
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        audio: { deviceId: { exact: micId } },
+      });
 
-        // Replace the audio track in the RTCPeerConnection
-        const newAudioTrack = newStream.getAudioTracks()[0];
-        const oldAudioTrack = localStream.getAudioTracks()[0];
-        localStream.removeTrack(oldAudioTrack);
-        localStream.addTrack(newAudioTrack);
-        rtcPeerConnectionManager
-          .getPeerConnections()
-          .forEach((peerConnection) => {
-            const sender = peerConnection.rtcPeerConnection
-              .getSenders()
-              .find((s) => s.track?.kind === "audio");
-            if (sender) {
-              sender.replaceTrack(newAudioTrack);
-            }
-          });
-        oldAudioTrack.stop();
-      }
-    } catch (error) {
-      console.error("Error updating the media stream:", error);
+      // Replace the audio track in the RTCPeerConnection
+      const newAudioTrack = newStream.getAudioTracks()[0];
+      const oldAudioTrack = localStream.getAudioTracks()[0];
+      localStream.removeTrack(oldAudioTrack);
+      localStream.addTrack(newAudioTrack);
+      rtcPeerConnectionManager
+        .getPeerConnections()
+        .forEach((peerConnection) => {
+          const sender = peerConnection.rtcPeerConnection
+            .getSenders()
+            .find((s) => s.track?.kind === "audio");
+          if (sender) {
+            sender.replaceTrack(newAudioTrack);
+          }
+        });
+      oldAudioTrack.stop();
     }
   }
 
@@ -125,6 +119,7 @@ export function RoomPage() {
               .fill(undefined)
               .map((_, i) => (
                 <VideoComponent
+                  micId={micId}
                   key={i}
                   speakerId={speakerId}
                   stream={localStream}
@@ -142,6 +137,7 @@ export function RoomPage() {
             return (
               <>
                 <VideoComponent
+                  micId={micId}
                   speakerId={speakerId}
                   stream={remoteConnection.remoteMediaStream}
                   key={remoteConnection.peerId}

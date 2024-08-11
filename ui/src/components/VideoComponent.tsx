@@ -2,23 +2,23 @@ import { memo, useEffect, useRef, useState } from "react";
 import { clsx } from "clsx";
 import { calculateScalingProportion } from "@/lib/audioStatistics";
 
-function VideoComponentRaw({
+export function VideoComponent({
   stream,
   local,
   speakerId,
+  micId,
 }: {
   stream: MediaStream;
   local?: boolean;
   speakerId: string;
+  micId: string;
 }) {
-  console.log("VideoComponent Full re-renderr");
   const [isTalking, setIsTalking] = useState(false);
   // const [timeTalkingDisplay, setTimeTalking] = useState(0);
   const [scalingProportion, setScalingProportion] = useState(1);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    console.log("Set output device");
     if (videoRef.current) {
       setOutputDevice(videoRef.current, speakerId);
     }
@@ -32,7 +32,6 @@ function VideoComponentRaw({
   }, [videoRef, speakerId]);
 
   useEffect(() => {
-    console.log("Setting video ref");
     if (videoRef.current) {
       videoRef.current.srcObject = stream;
       if (local) videoRef.current.volume = 0;
@@ -40,14 +39,12 @@ function VideoComponentRaw({
   }, [videoRef]);
 
   useEffect(() => {
-    console.log("scaling");
     if (videoRef.current && !local) {
       videoRef.current.volume = scalingProportion;
     }
   }, [videoRef, scalingProportion]);
 
   useEffect(() => {
-    console.log("analyzing audo");
     if (local) {
       attachAudioAnalyzer();
     } else {
@@ -140,15 +137,3 @@ function VideoComponentRaw({
     </div>
   );
 }
-
-export const VideoComponent = memo(
-  VideoComponentRaw,
-  (prevProps, nextProps) => {
-    console.log({ prevProps });
-    console.log({ nextProps });
-    return (
-      prevProps.stream === nextProps.stream &&
-      prevProps.local === nextProps.local
-    );
-  }
-);

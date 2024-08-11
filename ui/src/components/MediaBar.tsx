@@ -16,12 +16,15 @@ import { useEffect, useState } from "react";
 
 export function MediaBar({
   speakerId,
-  setSpeakerId,
+  onSpeakerChange,
+  micId,
+  onMicChange,
 }: {
   speakerId: string;
-  setSpeakerId: (speakerId: string) => void;
+  onSpeakerChange: (speakerId: string) => void;
+  micId: string;
+  onMicChange: (micId: string) => void;
 }) {
-  const [selectedMicrophone, setSelectedMicrophone] = useState("");
   const [microphones, setMicrophones] = useState<MediaDeviceInfo[]>([]);
   const [speakers, setSpeakers] = useState<MediaDeviceInfo[]>([]);
 
@@ -32,8 +35,6 @@ export function MediaBar({
       const speakers = devices.filter(
         (device) => device.kind === "audiooutput"
       );
-      setSelectedMicrophone(mics[0].deviceId);
-      setSpeakerId(speakers[0].deviceId);
       setMicrophones(mics);
       setSpeakers(speakers);
     }
@@ -46,10 +47,7 @@ export function MediaBar({
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <MicIcon />
-          <Select
-            onValueChange={(micDeviceId) => setSelectedMicrophone(micDeviceId)}
-            value={selectedMicrophone}
-          >
+          <Select onValueChange={onMicChange} value={micId}>
             <SelectTrigger className="w-60">
               <SelectValue placeholder="Select microphone" />
             </SelectTrigger>
@@ -67,7 +65,7 @@ export function MediaBar({
         </div>
         <div className="flex items-center gap-2 ml-4">
           <SpeakerIcon />
-          <Select value={speakerId} onValueChange={(id) => setSpeakerId(id)}>
+          <Select value={speakerId} onValueChange={onSpeakerChange}>
             <SelectTrigger className="w-60">
               <SelectValue placeholder="Select speaker" />
             </SelectTrigger>

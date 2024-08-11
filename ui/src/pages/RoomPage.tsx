@@ -18,15 +18,16 @@ import { useParams } from "react-router-dom";
 export function RoomPage() {
   const { roomId } = useParams();
   const [_, setMyConnectionId] = useState<string>("");
-  const [localStream, setStream] = useState<MediaStream | null>(null);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [peerConnections, setPeerConnections] = useState<VideoPeerConnection[]>(
     []
   );
-  const [speakerId, setSpeakerId] = useState("");
+  const [speakerId, setSpeakerId] = useState("default");
   const [socketClient, setSocketClient] = useState<SocketClient | undefined>(
     undefined
   );
-  const totalVideos = 3;
+  const [micId, setMicId] = useState("default");
+  const totalVideos = 1;
 
   useEffect(() => {
     // need to set remote streams
@@ -42,7 +43,7 @@ export function RoomPage() {
         video: true,
         audio: true,
       });
-      setStream(localMediaStream);
+      setLocalStream(localMediaStream);
       rtcPeerConnectionManager.setLocalMediaStream({ localMediaStream });
     };
 
@@ -82,6 +83,39 @@ export function RoomPage() {
     };
   }, [localStream, socketClient]);
 
+  async function handleMicChange(micId: string) {
+    console.log("slected mic Id: ", micId);
+    console.log("slected speaker Id: ", speakerId);
+    setMicId(micId);
+    try {
+      if (localStream) {
+        // Get a new media stream from the selected device
+        const newStream = await navigator.mediaDevices.getUserMedia({
+          audio: { deviceId: { exact: micId } },
+        });
+
+        // Replace the audio track in the RTCPeerConnection
+        const newAudioTrack = newStream.getAudioTracks()[0];
+        const oldAudioTrack = localStream.getAudioTracks()[0];
+        localStream.removeTrack(oldAudioTrack);
+        localStream.addTrack(newAudioTrack);
+        rtcPeerConnectionManager
+          .getPeerConnections()
+          .forEach((peerConnection) => {
+            const sender = peerConnection.rtcPeerConnection
+              .getSenders()
+              .find((s) => s.track?.kind === "audio");
+            if (sender) {
+              sender.replaceTrack(newAudioTrack);
+            }
+          });
+        oldAudioTrack.stop();
+      }
+    } catch (error) {
+      console.error("Error updating the media stream:", error);
+    }
+  }
+
   return (
     <>
       <div className="h-screen w-full flex flex-col justify-between flex-none">
@@ -89,9 +123,9 @@ export function RoomPage() {
           {localStream && // Used for testing when you have no friends :(
             new Array(totalVideos)
               .fill(undefined)
-              .map(() => (
+              .map((_, i) => (
                 <VideoComponent
-                  key={Math.random()}
+                  key={i}
                   speakerId={speakerId}
                   stream={localStream}
                   local
@@ -116,7 +150,12 @@ export function RoomPage() {
             );
           })}
         </div>
-        <MediaBar speakerId={speakerId} setSpeakerId={setSpeakerId} />
+        <MediaBar
+          speakerId={speakerId}
+          onSpeakerChange={setSpeakerId}
+          micId={micId}
+          onMicChange={handleMicChange}
+        />
       </div>
     </>
   );

@@ -52,7 +52,9 @@ export function RoomPage() {
   useEffect(() => {
     if (!localStream) return;
     const initSocketClient = async () => {
+      console.log("1");
       const newSocketClient = await createSocketClient();
+      console.log("2");
       setMyConnectionId(newSocketClient.myConnectionId);
       newSocketClient.addMessageListener(clientNewIceCandidate);
       newSocketClient.addMessageListener((message) => {
@@ -71,13 +73,16 @@ export function RoomPage() {
       });
       setSocketClient(newSocketClient);
     };
-
-    initSocketClient();
+    if (!socketClient) {
+      initSocketClient();
+    }
 
     return () => {
+      console.log("closing socket client");
+      console.log(JSON.stringify(socketClient));
       socketClient?.close();
     };
-  }, [localStream]);
+  }, [localStream, socketClient]);
 
   return (
     <>

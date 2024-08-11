@@ -66,7 +66,7 @@ export function MediaBar({
     <div className="bg-background border-t flex items-center justify-between px-4 py-3">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <MicIcon />
+          <MuteButton isMuted={isMuted} onMicMuteChange={onMicMuteChange} />
           <Select onValueChange={onMicChange} value={micId}>
             <SelectTrigger className="w-60">
               <SelectValue placeholder="Select microphone" />
@@ -102,7 +102,10 @@ export function MediaBar({
           </Select>
         </div>
         <div className="flex items-center gap-2 ml-4">
-          <VideoIcon />
+          <DisableCameraButton
+            cameraIsDisabled={cameraIsDisabled}
+            onCameraDisable={onCameraDisable}
+          />
           <Select value={cameraId} onValueChange={onCameraChange}>
             <SelectTrigger className="w-60">
               <SelectValue placeholder="Select camera" />
@@ -123,11 +126,6 @@ export function MediaBar({
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <MuteButton isMuted={isMuted} onMicMuteChange={onMicMuteChange} />
-        <DisableCameraButton
-          cameraIsDisabled={cameraIsDisabled}
-          onCameraDisable={onCameraDisable}
-        />
         <Button
           className="hover:bg-red-500"
           variant="ghost"

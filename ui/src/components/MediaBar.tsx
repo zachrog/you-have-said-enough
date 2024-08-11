@@ -3,6 +3,7 @@ import {
   MuteIcon,
   PhoneIcon,
   SpeakerIcon,
+  VideoDisabledIcon,
   VideoIcon,
 } from "@/components/icons/icons";
 import { Button } from "@/components/ui/button";
@@ -21,15 +22,19 @@ export function MediaBar({
   onSpeakerChange,
   micId,
   onMicChange,
-  onMicMuteChange,
   isMuted,
+  onMicMuteChange,
+  cameraIsDisabled,
+  onCameraDisable,
 }: {
   speakerId: string;
   onSpeakerChange: (speakerId: string) => void;
   micId: string;
   onMicChange: (micId: string) => void;
-  onMicMuteChange: (isMuted: boolean) => void;
   isMuted: boolean;
+  onMicMuteChange: (isMuted: boolean) => void;
+  cameraIsDisabled: boolean;
+  onCameraDisable: (isDisabled: boolean) => void;
 }) {
   const navigate = useNavigate();
   const [microphones, setMicrophones] = useState<MediaDeviceInfo[]>([]);
@@ -91,9 +96,10 @@ export function MediaBar({
       </div>
       <div className="flex items-center gap-4">
         <MuteButton isMuted={isMuted} onMicMuteChange={onMicMuteChange} />
-        <Button variant="ghost" size="icon">
-          <VideoIcon className="w-6 h-6" />
-        </Button>
+        <DisableCameraButton
+          cameraIsDisabled={cameraIsDisabled}
+          onCameraDisable={onCameraDisable}
+        />
         <Button
           className="hover:bg-red-500"
           variant="ghost"
@@ -136,6 +142,39 @@ function MuteButton({
       onClick={() => onMicMuteChange(!isMuted)}
     >
       <MicIcon className="w-6 h-6" />
+    </Button>
+  );
+}
+
+function DisableCameraButton({
+  cameraIsDisabled,
+  onCameraDisable,
+}: {
+  cameraIsDisabled: boolean;
+  onCameraDisable: (isMuted: boolean) => void;
+}) {
+  if (cameraIsDisabled) {
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => onCameraDisable(!cameraIsDisabled)}
+        title="Unmute"
+        className="bg-red-600 hover:bg-red-500"
+      >
+        <VideoDisabledIcon className="w-6 h-6" />
+      </Button>
+    );
+  }
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      title="Mute"
+      onClick={() => onCameraDisable(!cameraIsDisabled)}
+    >
+      <VideoIcon className="w-6 h-6" />
     </Button>
   );
 }

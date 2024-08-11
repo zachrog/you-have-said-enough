@@ -85,12 +85,20 @@ export function RoomPage() {
     };
   }, [localStream, socketClient]);
 
-  async function handleMicMuteChange(isMuted: boolean) {
+  function handleMicMuteChange(isMuted: boolean) {
     const localAudioTrack = localStream?.getAudioTracks()?.[0];
     if (localAudioTrack) {
       localAudioTrack.enabled = !isMuted;
     }
     setIsMuted(isMuted);
+  }
+
+  function handleCameraDisableChange(isDisabled: boolean) {
+    const localVideoTrack = localStream?.getVideoTracks()?.[0];
+    if (localVideoTrack) {
+      localVideoTrack.enabled = !isDisabled;
+    }
+    setCameraIsDisabled(isDisabled);
   }
 
   async function handleMicChange(micId: string) {
@@ -157,6 +165,8 @@ export function RoomPage() {
           })}
         </div>
         <MediaBar
+          cameraIsDisabled={cameraIsDisabled}
+          onCameraDisable={handleCameraDisableChange}
           speakerId={speakerId}
           onSpeakerChange={setSpeakerId}
           micId={micId}

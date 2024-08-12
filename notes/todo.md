@@ -1,3 +1,3 @@
-- Create smooth video sizing as people join and leave
 - Low Pass filter on sizing
 - evaluate how to limit explosive costs in AWS
+- Allow people to change the sound averaging time for the lobby

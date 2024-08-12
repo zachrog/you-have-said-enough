@@ -31,7 +31,7 @@ export function RoomPage() {
   const [micId, setMicId] = useState("default");
   const [isMuted, setIsMuted] = useState(false);
   const [cameraIsDisabled, setCameraIsDisabled] = useState(false);
-  const totalVideos = 3;
+  const totalVideos = peerConnections.length + 1;
 
   useEffect(() => {
     // need to set remote streams
@@ -145,7 +145,7 @@ export function RoomPage() {
             totalVideos >= 5 && "grid-cols-3",
           ])}
         >
-          {localStream && // Used for testing when you have no friends :(
+          {/* {localStream && // Used for testing when you have no friends :(
             new Array(totalVideos)
               .fill(undefined)
               .map((_, i) => (
@@ -156,8 +156,8 @@ export function RoomPage() {
                   stream={localStream}
                   local
                 />
-              ))}
-          {/* {localStream && (
+              ))} */}
+          {localStream && (
             <VideoComponent
               speakerId={speakerId}
               micId={micId}
@@ -165,7 +165,7 @@ export function RoomPage() {
               stream={localStream}
               local
             />
-          )} */}
+          )}
           {peerConnections.map((remoteConnection) => {
             return (
               <>

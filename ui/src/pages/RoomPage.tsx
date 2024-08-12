@@ -135,8 +135,8 @@ export function RoomPage() {
 
   return (
     <>
-      <div className="h-screen w-full flex flex-col justify-between flex-none">
-        <div className="w-full grid grid-cols-3">
+      <div className="h-screen w-full flex flex-col justify-between">
+        <div className="w-full h-full grid grid-cols-3 overflow-hidden max-h-screen">
           {localStream && // Used for testing when you have no friends :(
             new Array(totalVideos)
               .fill(undefined)
@@ -152,6 +152,8 @@ export function RoomPage() {
           {/* {localStream && (
             <VideoComponent
               speakerId={speakerId}
+              micId={micId}
+              key={"local"}
               stream={localStream}
               local
             />

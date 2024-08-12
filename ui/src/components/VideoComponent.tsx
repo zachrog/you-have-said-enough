@@ -119,12 +119,12 @@ export function VideoComponent({
   }, [micId]);
 
   return (
-    <div className="relative w-full">
+    <div className="w-full">
       <video
         className={clsx([
+          "w-full h-full object-cover",
           "box-border",
           "bg-gray-800",
-          "min-w-28",
           "flex-1",
           "rounded-lg",
           isTalking && "border-emerald-400",

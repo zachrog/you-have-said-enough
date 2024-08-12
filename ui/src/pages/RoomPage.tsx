@@ -30,7 +30,7 @@ export function RoomPage() {
   const [micId, setMicId] = useState("default");
   const [isMuted, setIsMuted] = useState(false);
   const [cameraIsDisabled, setCameraIsDisabled] = useState(false);
-  const totalVideos = 1;
+  const totalVideos = 9;
 
   useEffect(() => {
     // need to set remote streams
@@ -43,7 +43,11 @@ export function RoomPage() {
   useEffect(() => {
     const getUserMedia = async () => {
       const localMediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 1920 }, height: { ideal: 1080 } },
+        video: {
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          aspectRatio: 16 / 9,
+        },
         audio: true,
       });
       setLocalStream(localMediaStream);
@@ -132,7 +136,7 @@ export function RoomPage() {
   return (
     <>
       <div className="h-screen w-full flex flex-col justify-between flex-none">
-        <div className="h-screen w-full grid grid-cols-3">
+        <div className="w-full grid grid-cols-3">
           {localStream && // Used for testing when you have no friends :(
             new Array(totalVideos)
               .fill(undefined)

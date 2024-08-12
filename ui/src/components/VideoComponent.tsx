@@ -119,7 +119,7 @@ export function VideoComponent({
   }, [micId]);
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative w-full">
       <video
         className={clsx([
           "box-border",

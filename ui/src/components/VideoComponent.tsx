@@ -119,7 +119,7 @@ export function VideoComponent({
   }, [micId]);
 
   return (
-    <div className="w-full">
+    <div className="w-full min-w-0 min-h-0 overflow-hidden">
       <video
         className={clsx([
           "w-full h-full object-cover",

@@ -136,7 +136,7 @@ export function RoomPage() {
   return (
     <>
       <div className="h-screen w-full flex flex-col justify-between">
-        <div className="w-full h-full grid grid-cols-3 overflow-hidden max-h-screen">
+        <div className="w-full h-full grid grid-cols-3 overflow-hidden">
           {localStream && // Used for testing when you have no friends :(
             new Array(totalVideos)
               .fill(undefined)

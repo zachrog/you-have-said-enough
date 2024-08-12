@@ -43,7 +43,7 @@ export function RoomPage() {
   useEffect(() => {
     const getUserMedia = async () => {
       const localMediaStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
+        video: { width: { ideal: 1920 }, height: { ideal: 1080 } },
         audio: true,
       });
       setLocalStream(localMediaStream);

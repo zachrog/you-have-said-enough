@@ -45,7 +45,6 @@ export function VideoComponent({
   }, [videoRef, scalingProportion]);
 
   useEffect(() => {
-    console.log("audio analyzer useEffect");
     if (local) {
       attachAudioAnalyzer();
     } else {

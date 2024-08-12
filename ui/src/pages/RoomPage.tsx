@@ -14,6 +14,7 @@ import {
 } from "@/socketClient";
 import { MediaBar } from "@/components/MediaBar";
 import { useParams } from "react-router-dom";
+import clsx from "clsx";
 
 export function RoomPage() {
   const { roomId } = useParams();
@@ -30,7 +31,7 @@ export function RoomPage() {
   const [micId, setMicId] = useState("default");
   const [isMuted, setIsMuted] = useState(false);
   const [cameraIsDisabled, setCameraIsDisabled] = useState(false);
-  const totalVideos = 9;
+  const totalVideos = 3;
 
   useEffect(() => {
     // need to set remote streams
@@ -136,7 +137,14 @@ export function RoomPage() {
   return (
     <>
       <div className="h-screen w-full flex flex-col justify-between">
-        <div className="w-full h-full grid grid-cols-3 overflow-hidden">
+        <div
+          className={clsx([
+            "w-full h-full grid overflow-hidden",
+            totalVideos === 1 && "grid-cols-1",
+            totalVideos > 1 && totalVideos < 5 && "grid-cols-2",
+            totalVideos >= 5 && "grid-cols-3",
+          ])}
+        >
           {localStream && // Used for testing when you have no friends :(
             new Array(totalVideos)
               .fill(undefined)

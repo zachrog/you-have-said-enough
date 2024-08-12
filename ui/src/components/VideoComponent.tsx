@@ -122,11 +122,7 @@ export function VideoComponent({
     <div className="w-full min-w-0 min-h-0 overflow-hidden">
       <video
         className={clsx([
-          "w-full h-full object-cover",
-          "box-border",
-          "bg-gray-800",
-          "flex-1",
-          "rounded-lg",
+          "w-full h-full object-cover box-border flex-1 rounded-lg",
           isTalking && "border-emerald-400",
           isTalking && "border-2",
         ])}

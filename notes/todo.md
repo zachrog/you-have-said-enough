@@ -1,3 +1,5 @@
 - Low Pass filter on sizing
 - evaluate how to limit explosive costs in AWS
 - Allow people to change the sound averaging time for the lobby
+- App should not crash when enabling camera
+- App should not crash when someone else talks too much

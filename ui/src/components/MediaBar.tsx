@@ -21,7 +21,6 @@ export function MediaBar({
   speakerId,
   onSpeakerChange,
   onMicChange,
-  cameraId,
   onCameraChange,
   onMicMuteChange,
   onCameraDisable,
@@ -29,7 +28,6 @@ export function MediaBar({
   speakerId: string;
   onSpeakerChange: (speakerId: string) => void;
   onMicChange: (micId: string) => void;
-  cameraId: string;
   onCameraChange: (cameraId: string) => void;
   onMicMuteChange: (isMuted: boolean) => void;
   onCameraDisable: (isDisabled: boolean) => void;
@@ -39,6 +37,7 @@ export function MediaBar({
   const [micId, setMicId] = useState("");
   const [speakers, setSpeakers] = useState<MediaDeviceInfo[]>([]);
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
+  const [cameraId, setCameraId] = useState("");
   const [isMuted, setIsMuted] = useState(false);
   const [cameraIsDisabled, setCameraIsDisabled] = useState(false);
 
@@ -52,6 +51,9 @@ export function MediaBar({
       const cameras = devices.filter((device) => device.kind === "videoinput");
       if (mics[0]) {
         setMicId(mics[0].deviceId);
+      }
+      if (cameras[0]) {
+        setCameraId(cameras[0].deviceId);
       }
       onCameraChange(cameras[0].deviceId);
       setMicrophones(mics);
@@ -121,7 +123,13 @@ export function MediaBar({
               onCameraDisable(disabled);
             }}
           />
-          <Select value={cameraId} onValueChange={onCameraChange}>
+          <Select
+            value={cameraId}
+            onValueChange={(id) => {
+              setCameraId(id);
+              onCameraChange(id);
+            }}
+          >
             <SelectTrigger className="w-60">
               <SelectValue placeholder="Select camera" />
             </SelectTrigger>

@@ -24,7 +24,6 @@ export function RoomPage() {
     []
   );
   const [speakerId, setSpeakerId] = useState("default");
-  const [cameraId, setCameraId] = useState("");
   const [socketClient, setSocketClient] = useState<SocketClient | undefined>(
     undefined
   );
@@ -125,17 +124,48 @@ export function RoomPage() {
       const oldAudioTrack = localStream.getAudioTracks()[0];
       localStream.removeTrack(oldAudioTrack);
       localStream.addTrack(newAudioTrack);
-      rtcPeerConnectionManager
-        .getPeerConnections()
-        .forEach((peerConnection) => {
-          const sender = peerConnection.rtcPeerConnection
-            .getSenders()
-            .find((s) => s.track?.kind === "audio");
-          if (sender) {
-            sender.replaceTrack(newAudioTrack);
-          }
-        });
+      await Promise.all(
+        rtcPeerConnectionManager
+          .getPeerConnections()
+          .map(async (peerConnection) => {
+            const sender = peerConnection.rtcPeerConnection
+              .getSenders()
+              .find((s) => s.track?.kind === "audio");
+            if (sender) {
+              await sender.replaceTrack(newAudioTrack);
+            }
+          })
+      );
       oldAudioTrack.stop();
+      localStream.dispatchEvent(new Event("alltracksadded"));
+    }
+  }
+
+  async function handleCameraChange(cameraId: string) {
+    if (localStream) {
+      // Get a new media stream from the selected device
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        video: { deviceId: { exact: cameraId } },
+      });
+
+      // Replace the video track in the RTCPeerConnection
+      const newVideoTrack = newStream.getVideoTracks()[0];
+      const oldVideoTrack = localStream.getVideoTracks()[0];
+      localStream.removeTrack(oldVideoTrack);
+      localStream.addTrack(newVideoTrack);
+      await Promise.all(
+        rtcPeerConnectionManager
+          .getPeerConnections()
+          .map(async (peerConnection) => {
+            const sender = peerConnection.rtcPeerConnection
+              .getSenders()
+              .find((s) => s.track?.kind === "video");
+            if (sender) {
+              await sender.replaceTrack(newVideoTrack);
+            }
+          })
+      );
+      oldVideoTrack.stop();
       localStream.dispatchEvent(new Event("alltracksadded"));
     }
   }
@@ -210,8 +240,7 @@ export function RoomPage() {
           speakerId={speakerId}
           onSpeakerChange={setSpeakerId}
           onMicChange={handleMicChange}
-          cameraId={cameraId}
-          onCameraChange={setCameraId}
+          onCameraChange={handleCameraChange}
           onMicMuteChange={handleMicMuteChange}
         />
       </div>

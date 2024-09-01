@@ -20,7 +20,6 @@ import { useNavigate } from "react-router-dom";
 export function MediaBar({
   speakerId,
   onSpeakerChange,
-  micId,
   onMicChange,
   cameraId,
   onCameraChange,
@@ -29,7 +28,6 @@ export function MediaBar({
 }: {
   speakerId: string;
   onSpeakerChange: (speakerId: string) => void;
-  micId: string;
   onMicChange: (micId: string) => void;
   cameraId: string;
   onCameraChange: (cameraId: string) => void;
@@ -38,6 +36,7 @@ export function MediaBar({
 }) {
   const navigate = useNavigate();
   const [microphones, setMicrophones] = useState<MediaDeviceInfo[]>([]);
+  const [micId, setMicId] = useState("");
   const [speakers, setSpeakers] = useState<MediaDeviceInfo[]>([]);
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
   const [isMuted, setIsMuted] = useState(false);
@@ -46,13 +45,14 @@ export function MediaBar({
   useEffect(() => {
     async function initMediaDevices() {
       const devices = await navigator.mediaDevices.enumerateDevices();
-      // console.log(devices);
       const mics = devices.filter((device) => device.kind === "audioinput");
       const speakers = devices.filter(
-        // On ios and on firefox you cannot change your output settings. They do not show any audio outputs.
-        (device) => device.kind === "audiooutput"
+        (device) => device.kind === "audiooutput" // On ios and on firefox you cannot change your output settings. They do not show any audio outputs.
       );
       const cameras = devices.filter((device) => device.kind === "videoinput");
+      if (mics[0]) {
+        setMicId(mics[0].deviceId);
+      }
       onCameraChange(cameras[0].deviceId);
       setMicrophones(mics);
       setSpeakers(speakers);
@@ -73,7 +73,13 @@ export function MediaBar({
               onMicMuteChange(mute);
             }}
           />
-          <Select onValueChange={onMicChange} value={micId}>
+          <Select
+            onValueChange={(id) => {
+              setMicId(id);
+              onMicChange(id);
+            }}
+            value={micId}
+          >
             <SelectTrigger className="w-60">
               <SelectValue placeholder="Select microphone" />
             </SelectTrigger>

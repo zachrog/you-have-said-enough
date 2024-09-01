@@ -28,7 +28,6 @@ export function RoomPage() {
   const [socketClient, setSocketClient] = useState<SocketClient | undefined>(
     undefined
   );
-  const [micId, setMicId] = useState("default");
   const [mediaAccessAvailability, setMediaAccessAvailability] = useState<
     "deciding" | "blocked" | "available"
   >("deciding");
@@ -137,8 +136,8 @@ export function RoomPage() {
           }
         });
       oldAudioTrack.stop();
+      localStream.dispatchEvent(new Event("alltracksadded"));
     }
-    setMicId(micId);
   }
 
   if (mediaAccessAvailability === "deciding") {
@@ -180,7 +179,6 @@ export function RoomPage() {
               .fill(undefined)
               .map((_, i) => (
                 <VideoComponent
-                  micId={micId}
                   key={i}
                   speakerId={speakerId}
                   stream={localStream}
@@ -190,7 +188,6 @@ export function RoomPage() {
           {/*localStream && (
             <VideoComponent
               speakerId={speakerId}
-              micId={micId}
               key={"local"}
               stream={localStream}
               local
@@ -200,7 +197,6 @@ export function RoomPage() {
             return (
               <>
                 <VideoComponent
-                  micId={micId}
                   speakerId={speakerId}
                   stream={remoteConnection.remoteMediaStream}
                   key={remoteConnection.peerId}
@@ -213,7 +209,6 @@ export function RoomPage() {
           onCameraDisable={handleCameraDisableChange}
           speakerId={speakerId}
           onSpeakerChange={setSpeakerId}
-          micId={micId}
           onMicChange={handleMicChange}
           cameraId={cameraId}
           onCameraChange={setCameraId}

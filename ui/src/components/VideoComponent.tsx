@@ -6,16 +6,15 @@ export function VideoComponent({
   stream,
   local,
   speakerId,
-  micId,
 }: {
   stream: MediaStream;
   local?: boolean;
   speakerId: string;
-  micId: string;
 }) {
   const [isTalking, setIsTalking] = useState(false);
   // const [timeTalkingDisplay, setTimeTalking] = useState(0);
   const [scalingProportion, setScalingProportion] = useState(1);
+  const [trackId, setTrackId] = useState(0.263);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -45,14 +44,10 @@ export function VideoComponent({
   }, [videoRef, scalingProportion]);
 
   useEffect(() => {
-    if (local) {
-      attachAudioAnalyzer();
-    } else {
-      stream.addEventListener("alltracksadded", attachAudioAnalyzer); // Remote streams have tracks added later on.
-    }
+    const audioContext = new AudioContext();
+    let animationFrameId: number;
 
     function attachAudioAnalyzer() {
-      const audioContext = new AudioContext();
       const source = audioContext.createMediaStreamSource(stream);
       const analyser = audioContext.createAnalyser();
 
@@ -105,18 +100,27 @@ export function VideoComponent({
             timeTalkingInWindow,
           })
         );
-        // setTimeTalking(timeTalkingInWindow);
         timeOfLastSample = now;
-        requestAnimationFrame(analyzeAudio);
+        requestAnimationFrame(analyzeAudio); // Does this create a perpetual loop even if we add a new mic?
       }
 
       analyzeAudio();
     }
 
-    return () =>
-      stream.removeEventListener("alltracksadded", attachAudioAnalyzer);
-    // might need to clean up resources from the audio analyzer
-  }, [micId]);
+    attachAudioAnalyzer();
+    function allTracksAddedListener() {
+      setTrackId(Math.random());
+    }
+    stream.addEventListener("alltracksadded", allTracksAddedListener); // Remote streams have tracks added later on.
+
+    return () => {
+      stream.removeEventListener("alltracksadded", allTracksAddedListener);
+      audioContext.close();
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [trackId]);
 
   return (
     <div className="w-full min-w-0 min-h-0 overflow-hidden">

@@ -7,5 +7,5 @@ export function calculateScalingProportion({
 }): number {
   const totalProportion = timeTalkingInWindow / evaluationWindow;
   const inverseProportion = 1 - totalProportion;
-  return inverseProportion;
+  return Math.max(inverseProportion, 0); // We never want to go below 0
 }

@@ -14,7 +14,7 @@ export function VideoComponent({
   const [isTalking, setIsTalking] = useState(false);
   // const [timeTalkingDisplay, setTimeTalking] = useState(0);
   const [scalingProportion, setScalingProportion] = useState(1);
-  const [trackId, setTrackId] = useState(0.263);
+  const [trackId, setTrackId] = useState(0.263); // This is a janky way to trigger useEffect to run again when the microphone has changed and so the analyzer needs to restart.
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {

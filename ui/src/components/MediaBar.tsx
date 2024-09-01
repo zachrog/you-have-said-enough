@@ -33,10 +33,16 @@ export function MediaBar({
   onCameraDisable: (isDisabled: boolean) => void;
 }) {
   const navigate = useNavigate();
-  const [microphones, setMicrophones] = useState<MediaDeviceInfo[]>([]);
+  const [microphones, setMicrophones] = useState([
+    { label: "System Default Microphone", deviceId: "default" },
+  ]);
   const [micId, setMicId] = useState("");
-  const [speakers, setSpeakers] = useState<MediaDeviceInfo[]>([]);
-  const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
+  const [speakers, setSpeakers] = useState([
+    { label: "System Default Speaker", deviceId: "default" },
+  ]);
+  const [cameras, setCameras] = useState([
+    { label: "System Default Camera", deviceId: "default" },
+  ]);
   const [cameraId, setCameraId] = useState("");
   const [isMuted, setIsMuted] = useState(false);
   const [cameraIsDisabled, setCameraIsDisabled] = useState(false);
@@ -49,16 +55,17 @@ export function MediaBar({
         (device) => device.kind === "audiooutput" // On ios and on firefox you cannot change your output settings. They do not show any audio outputs.
       );
       const cameras = devices.filter((device) => device.kind === "videoinput");
-      if (mics[0]) {
+      if (mics.length) {
         setMicId(mics[0].deviceId);
+        setMicrophones(mics);
       }
-      if (cameras[0]) {
+      if (cameras.length) {
         setCameraId(cameras[0].deviceId);
+        setCameras(cameras);
       }
-      onCameraChange(cameras[0].deviceId);
-      setMicrophones(mics);
-      setSpeakers(speakers);
-      setCameras(cameras);
+      if (speakers.length) {
+        setSpeakers(speakers);
+      }
     }
 
     initMediaDevices();

@@ -31,7 +31,11 @@ export function RoomPage() {
   const [micId, setMicId] = useState("default");
   const [isMuted, setIsMuted] = useState(false);
   const [cameraIsDisabled, setCameraIsDisabled] = useState(false);
-  const totalVideos = peerConnections.length + 1;
+  const [mediaAccessAvailability, setMediaAccessAvailability] = useState<
+    "deciding" | "blocked" | "available"
+  >("deciding");
+  // const totalVideos = peerConnections.length + 1;
+  const totalVideos = 6;
 
   useEffect(() => {
     // need to set remote streams
@@ -43,16 +47,23 @@ export function RoomPage() {
 
   useEffect(() => {
     const getUserMedia = async () => {
-      const localMediaStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-          aspectRatio: 16 / 9,
-        },
-        audio: true,
-      });
-      setLocalStream(localMediaStream);
-      rtcPeerConnectionManager.setLocalMediaStream({ localMediaStream });
+      try {
+        const localMediaStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+            aspectRatio: 16 / 9,
+          },
+          audio: true,
+        });
+        setMediaAccessAvailability("available");
+        setLocalStream(localMediaStream);
+        rtcPeerConnectionManager.setLocalMediaStream({ localMediaStream });
+      } catch (e) {
+        if (e instanceof DOMException && e.name === "NotAllowedError") {
+          setMediaAccessAvailability("blocked");
+        }
+      }
     };
 
     getUserMedia();
@@ -134,6 +145,29 @@ export function RoomPage() {
     setMicId(micId);
   }
 
+  if (mediaAccessAvailability === "deciding") {
+    return;
+  }
+
+  if (mediaAccessAvailability === "blocked") {
+    return (
+      <>
+        <div className="flex items-center justify-center min-h-[100dvh]">
+          <div className="w-1/2">
+            <h1 className="text-5xl text-center font-bold mb-10">
+              Camera Error
+            </h1>
+            <p className="text-3xl font-light">
+              Look... We are really going to need access to your camera for this
+              whole thing to work. Please enable it in your browser settings and
+              refresh, or stare at a black screen. Your call.
+            </p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <div className="h-screen w-full flex flex-col justify-between">
@@ -145,7 +179,7 @@ export function RoomPage() {
             totalVideos >= 5 && "grid-cols-3",
           ])}
         >
-          {/* {localStream && // Used for testing when you have no friends :(
+          {localStream && // Used for testing when you have no friends :(
             new Array(totalVideos)
               .fill(undefined)
               .map((_, i) => (
@@ -156,8 +190,8 @@ export function RoomPage() {
                   stream={localStream}
                   local
                 />
-              ))} */}
-          {localStream && (
+              ))}
+          {/*localStream && (
             <VideoComponent
               speakerId={speakerId}
               micId={micId}
@@ -165,7 +199,7 @@ export function RoomPage() {
               stream={localStream}
               local
             />
-          )}
+          ) */}
           {peerConnections.map((remoteConnection) => {
             return (
               <>

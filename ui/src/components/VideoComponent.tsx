@@ -107,14 +107,16 @@ export function VideoComponent({
       analyzeAudio();
     }
 
-    attachAudioAnalyzer();
-    function allTracksAddedListener() {
+    if (stream.active) {
+      attachAudioAnalyzer();
+    }
+    function audioTrackAddedListener() {
       setTrackId(Math.random());
     }
-    stream.addEventListener("alltracksadded", allTracksAddedListener); // Remote streams have tracks added later on.
+    stream.addEventListener("audioTrackAdded", audioTrackAddedListener); // Remote streams have tracks added later on.
 
     return () => {
-      stream.removeEventListener("alltracksadded", allTracksAddedListener);
+      stream.removeEventListener("audioTrackAdded", audioTrackAddedListener);
       audioContext.close();
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);

@@ -137,7 +137,7 @@ export function RoomPage() {
           })
       );
       oldAudioTrack.stop();
-      localStream.dispatchEvent(new Event("alltracksadded"));
+      localStream.dispatchEvent(new Event("audioTrackAdded"));
     }
   }
 
@@ -166,7 +166,7 @@ export function RoomPage() {
           })
       );
       oldVideoTrack.stop();
-      localStream.dispatchEvent(new Event("alltracksadded"));
+      localStream.dispatchEvent(new Event("videoTrackAdded"));
     }
   }
 

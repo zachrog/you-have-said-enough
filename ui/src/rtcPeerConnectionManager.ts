@@ -94,8 +94,10 @@ class RtcPeerConnectionManager {
     rtcPeerConnection.ontrack = (event) => {
       event.streams[0].getTracks().forEach((track) => {
         remoteMediaStream.addTrack(track);
+        const eventName =
+          track.kind === "audio" ? "audioTrackAdded" : "videoTrackAdded";
+        remoteMediaStream.dispatchEvent(new Event(eventName));
       });
-      remoteMediaStream.dispatchEvent(new Event("alltracksadded"));
     };
 
     return rtcPeerConnection;

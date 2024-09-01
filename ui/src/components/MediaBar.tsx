@@ -24,9 +24,7 @@ export function MediaBar({
   onMicChange,
   cameraId,
   onCameraChange,
-  isMuted,
   onMicMuteChange,
-  cameraIsDisabled,
   onCameraDisable,
 }: {
   speakerId: string;
@@ -35,21 +33,23 @@ export function MediaBar({
   onMicChange: (micId: string) => void;
   cameraId: string;
   onCameraChange: (cameraId: string) => void;
-  isMuted: boolean;
   onMicMuteChange: (isMuted: boolean) => void;
-  cameraIsDisabled: boolean;
   onCameraDisable: (isDisabled: boolean) => void;
 }) {
   const navigate = useNavigate();
   const [microphones, setMicrophones] = useState<MediaDeviceInfo[]>([]);
   const [speakers, setSpeakers] = useState<MediaDeviceInfo[]>([]);
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
+  const [isMuted, setIsMuted] = useState(false);
+  const [cameraIsDisabled, setCameraIsDisabled] = useState(false);
 
   useEffect(() => {
     async function initMediaDevices() {
       const devices = await navigator.mediaDevices.enumerateDevices();
+      // console.log(devices);
       const mics = devices.filter((device) => device.kind === "audioinput");
       const speakers = devices.filter(
+        // On ios and on firefox you cannot change your output settings. They do not show any audio outputs.
         (device) => device.kind === "audiooutput"
       );
       const cameras = devices.filter((device) => device.kind === "videoinput");
@@ -66,7 +66,13 @@ export function MediaBar({
     <div className="bg-background border-t flex items-center justify-between px-4 py-3">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <MuteButton isMuted={isMuted} onMicMuteChange={onMicMuteChange} />
+          <MuteButton
+            isMuted={isMuted}
+            onMicMuteChange={(mute) => {
+              setIsMuted(mute);
+              onMicMuteChange(mute);
+            }}
+          />
           <Select onValueChange={onMicChange} value={micId}>
             <SelectTrigger className="w-60">
               <SelectValue placeholder="Select microphone" />
@@ -104,7 +110,10 @@ export function MediaBar({
         <div className="flex items-center gap-2 ml-4">
           <DisableCameraButton
             cameraIsDisabled={cameraIsDisabled}
-            onCameraDisable={onCameraDisable}
+            onCameraDisable={(disabled) => {
+              setCameraIsDisabled(disabled);
+              onCameraDisable(disabled);
+            }}
           />
           <Select value={cameraId} onValueChange={onCameraChange}>
             <SelectTrigger className="w-60">

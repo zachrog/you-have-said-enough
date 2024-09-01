@@ -29,8 +29,6 @@ export function RoomPage() {
     undefined
   );
   const [micId, setMicId] = useState("default");
-  const [isMuted, setIsMuted] = useState(false);
-  const [cameraIsDisabled, setCameraIsDisabled] = useState(false);
   const [mediaAccessAvailability, setMediaAccessAvailability] = useState<
     "deciding" | "blocked" | "available"
   >("deciding");
@@ -107,7 +105,6 @@ export function RoomPage() {
     if (localAudioTrack) {
       localAudioTrack.enabled = !isMuted;
     }
-    setIsMuted(isMuted);
   }
 
   function handleCameraDisableChange(isDisabled: boolean) {
@@ -115,7 +112,6 @@ export function RoomPage() {
     if (localVideoTrack) {
       localVideoTrack.enabled = !isDisabled;
     }
-    setCameraIsDisabled(isDisabled);
   }
 
   async function handleMicChange(micId: string) {
@@ -214,7 +210,6 @@ export function RoomPage() {
           })}
         </div>
         <MediaBar
-          cameraIsDisabled={cameraIsDisabled}
           onCameraDisable={handleCameraDisableChange}
           speakerId={speakerId}
           onSpeakerChange={setSpeakerId}
@@ -222,7 +217,6 @@ export function RoomPage() {
           onMicChange={handleMicChange}
           cameraId={cameraId}
           onCameraChange={setCameraId}
-          isMuted={isMuted}
           onMicMuteChange={handleMicMuteChange}
         />
       </div>

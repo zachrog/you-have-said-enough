@@ -23,7 +23,6 @@ export function RoomPage() {
   const [peerConnections, setPeerConnections] = useState<VideoPeerConnection[]>(
     []
   );
-  const [speakerId, setSpeakerId] = useState("default");
   const [socketClient, setSocketClient] = useState<SocketClient | undefined>(
     undefined
   );
@@ -208,16 +207,10 @@ export function RoomPage() {
             new Array(totalVideos)
               .fill(undefined)
               .map((_, i) => (
-                <VideoComponent
-                  key={i}
-                  speakerId={speakerId}
-                  stream={localStream}
-                  local
-                />
+                <VideoComponent key={i} stream={localStream} local />
               ))}
           {/*localStream && (
             <VideoComponent
-              speakerId={speakerId}
               key={"local"}
               stream={localStream}
               local
@@ -227,7 +220,6 @@ export function RoomPage() {
             return (
               <>
                 <VideoComponent
-                  speakerId={speakerId}
                   stream={remoteConnection.remoteMediaStream}
                   key={remoteConnection.peerId}
                 />
@@ -237,8 +229,6 @@ export function RoomPage() {
         </div>
         <MediaBar
           onCameraDisable={handleCameraDisableChange}
-          speakerId={speakerId}
-          onSpeakerChange={setSpeakerId}
           onMicChange={handleMicChange}
           onCameraChange={handleCameraChange}
           onMicMuteChange={handleMicMuteChange}

@@ -2,7 +2,6 @@ import {
   MicIcon,
   MuteIcon,
   PhoneIcon,
-  SpeakerIcon,
   VideoDisabledIcon,
   VideoIcon,
 } from "@/components/icons/icons";
@@ -18,15 +17,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export function MediaBar({
-  speakerId,
-  onSpeakerChange,
   onMicChange,
   onCameraChange,
   onMicMuteChange,
   onCameraDisable,
 }: {
-  speakerId: string;
-  onSpeakerChange: (speakerId: string) => void;
   onMicChange: (micId: string) => void;
   onCameraChange: (cameraId: string) => void;
   onMicMuteChange: (isMuted: boolean) => void;
@@ -37,9 +32,6 @@ export function MediaBar({
     { label: "System Default Microphone", deviceId: "default" },
   ]);
   const [micId, setMicId] = useState("");
-  const [speakers, setSpeakers] = useState([
-    { label: "System Default Speaker", deviceId: "default" },
-  ]);
   const [cameras, setCameras] = useState([
     { label: "System Default Camera", deviceId: "default" },
   ]);
@@ -51,9 +43,6 @@ export function MediaBar({
     async function initMediaDevices() {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const mics = devices.filter((device) => device.kind === "audioinput");
-      const speakers = devices.filter(
-        (device) => device.kind === "audiooutput" // On ios and on firefox you cannot change your output settings. They do not show any audio outputs.
-      );
       const cameras = devices.filter((device) => device.kind === "videoinput");
       if (mics.length) {
         setMicId(mics[0].deviceId);
@@ -62,9 +51,6 @@ export function MediaBar({
       if (cameras.length) {
         setCameraId(cameras[0].deviceId);
         setCameras(cameras);
-      }
-      if (speakers.length) {
-        setSpeakers(speakers);
       }
     }
 
@@ -99,24 +85,6 @@ export function MediaBar({
                   key={microphone.deviceId + microphone.label}
                 >
                   {microphone.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex items-center gap-2 ml-4">
-          <SpeakerIcon />
-          <Select value={speakerId} onValueChange={onSpeakerChange}>
-            <SelectTrigger className="w-60">
-              <SelectValue placeholder="Select speaker" />
-            </SelectTrigger>
-            <SelectContent>
-              {speakers.map((speaker) => (
-                <SelectItem
-                  value={speaker.deviceId}
-                  key={speaker.deviceId + speaker.label}
-                >
-                  {speaker.label}
                 </SelectItem>
               ))}
             </SelectContent>

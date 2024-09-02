@@ -1,3 +1,5 @@
+export const DEFAULT_AUDIO_WINDOW = 5000;
+
 export function calculateScalingProportion({
   timeTalkingInWindow,
   evaluationWindow,

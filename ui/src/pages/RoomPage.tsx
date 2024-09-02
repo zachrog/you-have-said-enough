@@ -15,6 +15,8 @@ import {
 import { MediaBar } from "@/components/MediaBar";
 import { useParams } from "react-router-dom";
 import clsx from "clsx";
+import { Room } from "server/src/entities/Room";
+import { DEFAULT_AUDIO_WINDOW } from "@/lib/audioStatistics";
 
 export function RoomPage() {
   const { roomId } = useParams();
@@ -29,7 +31,10 @@ export function RoomPage() {
   const [mediaAccessAvailability, setMediaAccessAvailability] = useState<
     "deciding" | "blocked" | "available"
   >("deciding");
-  // const totalVideos = peerConnections.length + 1;
+  const [roomInfo, setRoomInfo] = useState<Room>({
+    roomId: roomId!,
+    audioWindow: DEFAULT_AUDIO_WINDOW,
+  });
   const totalVideos = 6;
 
   useEffect(() => {
@@ -108,6 +113,11 @@ export function RoomPage() {
       newSocketClient.addMessageListener(clientNewAnswer);
       newSocketClient.addMessageListener((message) => {
         clientNewOffer(message, newSocketClient);
+      });
+      newSocketClient.addMessageListener((message) => {
+        if (message.action === "roomInfo") {
+          setRoomInfo(message.data);
+        }
       });
       newSocketClient.sendMessage({
         roomId: roomId!,
@@ -239,7 +249,12 @@ export function RoomPage() {
             new Array(totalVideos)
               .fill(undefined)
               .map((_, i) => (
-                <VideoComponent key={i} stream={localStream} local />
+                <VideoComponent
+                  key={i}
+                  stream={localStream}
+                  local
+                  audioWindow={roomInfo.audioWindow}
+                />
               ))}
           {/*localStream && (
             <VideoComponent
@@ -254,12 +269,14 @@ export function RoomPage() {
                 <VideoComponent
                   stream={remoteConnection.remoteMediaStream}
                   key={remoteConnection.peerId}
+                  audioWindow={roomInfo.audioWindow}
                 />
               </>
             );
           })}
         </div>
         <MediaBar
+          audioWindow={roomInfo.audioWindow}
           onCameraDisable={handleCameraDisableChange}
           onMicChange={handleMicChange}
           onCameraChange={handleCameraChange}

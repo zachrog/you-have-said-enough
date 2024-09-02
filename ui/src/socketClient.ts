@@ -7,7 +7,8 @@ export type ClientWebsocketMessage = {
     | "newAnswer"
     | "newIceCandidate"
     | "yourConnectionId"
-    | "newUserJoined";
+    | "newUserJoined"
+    | "roomInfo";
   to: string;
   from: string;
   data: any;

@@ -5,8 +5,10 @@ import { calculateScalingProportion } from "@/lib/audioStatistics";
 export function VideoComponent({
   stream,
   local,
+  audioWindow,
 }: {
   stream: MediaStream;
+  audioWindow: number;
   local?: boolean;
 }) {
   const [isTalking, setIsTalking] = useState(false);
@@ -45,7 +47,6 @@ export function VideoComponent({
 
       let timeOfLastSample = 0;
       let timeTalkingInWindow = 0;
-      const evaluationWindow = 5000;
       const speechHistory: { timeSpentTalking: number; recordedAt: number }[] =
         [];
       function analyzeAudio() {
@@ -72,7 +73,7 @@ export function VideoComponent({
         });
 
         let lastEvaluatedPeriod = speechHistory[0].recordedAt;
-        while (lastEvaluatedPeriod < now - evaluationWindow) {
+        while (lastEvaluatedPeriod < now - audioWindow) {
           const deletedEntry = speechHistory.shift()!;
           lastEvaluatedPeriod = speechHistory[0].recordedAt;
           timeTalkingInWindow =
@@ -81,7 +82,7 @@ export function VideoComponent({
 
         setScalingProportion(
           calculateScalingProportion({
-            evaluationWindow,
+            evaluationWindow: audioWindow,
             timeTalkingInWindow,
           })
         );

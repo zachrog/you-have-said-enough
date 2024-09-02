@@ -1,5 +1,6 @@
 import { TDynamoRecord } from "server/src/dynamo/dynamoTypes";
 import { getDynamo } from "server/src/dynamo/getDynamo";
+import { Room } from "server/src/entities/Room";
 import { environment } from "server/src/environment";
 
 export async function getRoom({
@@ -16,9 +17,5 @@ export async function getRoom({
 
   return (result?.Item as RoomRecord)?.data;
 }
-
-export type Room = {
-  averagingWindow: number;
-};
 
 export type RoomRecord = TDynamoRecord<Room>;

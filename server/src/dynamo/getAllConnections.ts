@@ -1,5 +1,5 @@
-import { ConnectionRecord } from "server/src/storeConnection";
-import { environment } from "./environment";
+import { ConnectionRecord } from "server/src/dynamo/storeConnection";
+import { environment } from "../environment";
 import { getDynamo } from "./getDynamo";
 
 export async function getAllConnections(

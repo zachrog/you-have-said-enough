@@ -1,5 +1,5 @@
 import { APIGatewayProxyWebsocketEventV2 } from "aws-lambda";
-import { removeConnection } from "./removeConnection";
+import { removeConnection } from "./dynamo/removeConnection";
 import { sendWebsocketMessage } from "./broadcastToRoom";
 import { enterRoom } from "./enterRoom";
 

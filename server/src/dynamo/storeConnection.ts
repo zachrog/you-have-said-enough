@@ -1,5 +1,5 @@
-import { TDynamoRecord, expireIn3Days } from "server/src/dynamoTypes";
-import { environment } from "./environment";
+import { expireIn3Days, TDynamoRecord } from "server/src/dynamo/dynamoTypes";
+import { environment } from "../environment";
 import { getDynamo } from "./getDynamo";
 
 export async function storeConnection(

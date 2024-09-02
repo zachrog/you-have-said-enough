@@ -1,8 +1,8 @@
 export type TDynamoRecord<T> = {
   pk: string;
   sk: string;
-  pk2: string;
-  sk2: string;
+  pk2?: string;
+  sk2?: string;
   ttl: number;
   data: T;
 };

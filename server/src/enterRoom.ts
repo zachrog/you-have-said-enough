@@ -1,6 +1,6 @@
 import { ClientWebsocketMessage } from "@/socketClient";
 import { sendWebsocketMessage } from "server/src/broadcastToRoom";
-import { storeConnection } from "server/src/storeConnection";
+import { storeConnection } from "server/src/dynamo/storeConnection";
 
 export async function enterRoom({
   myConnectionId,

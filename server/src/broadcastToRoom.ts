@@ -1,7 +1,7 @@
 import { getSocketClient } from "./getSocketClient";
 import { PostToConnectionCommand } from "@aws-sdk/client-apigatewaymanagementapi";
 import { ClientWebsocketMessage } from "../../ui/src/socketClient";
-import { getAllConnections } from "./getAllConnections";
+import { getAllConnections } from "./dynamo/getAllConnections";
 
 export async function sendWebsocketMessage({
   message,

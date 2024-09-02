@@ -38,12 +38,40 @@ export function RoomPage() {
     rtcPeerConnectionManager.listeners.push(() => {
       setPeerConnections(rtcPeerConnectionManager.getPeerConnections());
     });
+
+    return () => {
+      rtcPeerConnectionManager
+        .getPeerConnections()
+        .forEach((peerConnection) => {
+          // Close the senders' tracks
+          peerConnection.rtcPeerConnection.getSenders().forEach((sender) => {
+            const track = sender.track;
+            if (track) {
+              track.stop();
+            }
+          });
+
+          // Close the receivers' tracks (for remote tracks)
+          peerConnection.rtcPeerConnection
+            .getReceivers()
+            .forEach((receiver) => {
+              const track = receiver.track;
+              if (track) {
+                track.stop();
+              }
+            });
+
+          // Close the peer connection
+          peerConnection.rtcPeerConnection.close();
+        });
+    };
   }, []);
 
   useEffect(() => {
+    let localMediaStream: MediaStream;
     const getUserMedia = async () => {
       try {
-        const localMediaStream = await navigator.mediaDevices.getUserMedia({
+        localMediaStream = await navigator.mediaDevices.getUserMedia({
           video: {
             width: { ideal: 1920 },
             height: { ideal: 1080 },
@@ -62,6 +90,10 @@ export function RoomPage() {
     };
 
     getUserMedia();
+
+    return () => {
+      localMediaStream.getTracks().forEach((track) => track.stop());
+    };
   }, []);
 
   useEffect(() => {

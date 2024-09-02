@@ -71,7 +71,7 @@ class RtcPeerConnectionManager {
     });
 
     rtcPeerConnection.addEventListener("connectionstatechange", () => {
-      if (rtcPeerConnection.connectionState == "disconnected") {
+      if (rtcPeerConnection.connectionState === "failed") {
         rtcPeerConnection.close();
         this.videoPeerConnections.delete(peerId);
         for (let index = 0; index < this.listeners.length; index++) {

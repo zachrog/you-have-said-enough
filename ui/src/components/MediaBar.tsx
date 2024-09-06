@@ -26,7 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import {
   Tooltip,
   TooltipContent,
@@ -198,37 +197,33 @@ function RoomSettings({}) {
                 Audio Window
               </Label>
               <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Button size="icon" variant="ghost">
-                        <InfoIcon className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>
-                        What time period Zuumb will listen to audio and adjust
-                        the room.
-                        <br />
-                        The shorter the time the more chaotic.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <InfoIcon className="h-4 w-4 text-muted-foreground ml-2" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      What time period Zuumb will listen to audio and adjust the
+                      room.
+                      <br />
+                      The shorter the time the more chaotic.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
             <div className="flex flex-row items-center">
               <Input
                 id="audioWindow"
                 value={settings.username}
-                type='number'
+                type="number"
                 onChange={(e) =>
                   setSettings({ ...settings, username: e.target.value })
                 }
                 className="w-20 text-right"
               />
               <p className="ml-1">s</p>
-              <div className='ml-2'>
-
-              </div>
+              <div className="ml-2"></div>
             </div>
           </div>
         </div>

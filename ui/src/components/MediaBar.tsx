@@ -184,32 +184,20 @@ function RoomSettings({}) {
           <SettingsIcon className="w-6 h-6" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-[600px]">
+      <DialogContent className="w-[400px]">
         <DialogHeader>
           <DialogTitle>Room Settings</DialogTitle>
           <DialogDescription>
-            Adjust room settings here. It's always fun to screw with people.
+            It's always fun to screw with people.
           </DialogDescription>
         </DialogHeader>
         <div className="flex gap-4 py-4">
           <div className="flex items-center justify-between w-full gap-4">
             <div>
-              <Label htmlFor="audioWindow" className="">
+              <Label htmlFor="audioWindow" className="text-md">
                 Audio Window
               </Label>
-            </div>
-            <div className="flex flex-row items-center">
-              <Input
-                id="audioWindow"
-                value={settings.username}
-                onChange={(e) =>
-                  setSettings({ ...settings, username: e.target.value })
-                }
-                className="col-span-3"
-              />
-              <p className="ml-1">s</p>
-              <div className='ml-2'>
-                <TooltipProvider>
+              <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
                       <Button size="icon" variant="ghost">
@@ -226,6 +214,20 @@ function RoomSettings({}) {
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+            </div>
+            <div className="flex flex-row items-center">
+              <Input
+                id="audioWindow"
+                value={settings.username}
+                type='number'
+                onChange={(e) =>
+                  setSettings({ ...settings, username: e.target.value })
+                }
+                className="w-20 text-right"
+              />
+              <p className="ml-1">s</p>
+              <div className='ml-2'>
+
               </div>
             </div>
           </div>

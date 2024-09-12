@@ -11,37 +11,37 @@ export async function enterRoom({
   myConnectionId: string;
   roomId: string;
 }) {
-  await Promise.all([
-    await storeConnection(myConnectionId, roomId),
-    async () => {
-      await sendWebsocketMessage({
-        message: {
-          action: "newUserJoined",
-          from: myConnectionId,
-          to: "all",
-          data: myConnectionId,
-          roomId: roomId,
-        },
+  async function storeAndSendRoomInfo(): Promise<void> {
+    let room = await getRoom({ roomId });
+    if (!room) {
+      room = { audioWindow: DEFAULT_AUDIO_WINDOW, roomId: roomId };
+      await upsertRoom({
+        room,
       });
-    },
-    async () => {
-      let room = await getRoom({ roomId });
-      if (!room) {
-        room = { audioWindow: DEFAULT_AUDIO_WINDOW, roomId: roomId };
-        await upsertRoom({
-          room,
-        });
-      }
+    }
 
-      await sendWebsocketMessage({
-        message: {
-          action: "roomInfo",
-          data: room,
-          from: myConnectionId,
-          roomId,
-          to: myConnectionId,
-        },
-      });
-    },
+    await sendWebsocketMessage({
+      message: {
+        action: "roomInfo",
+        data: room,
+        from: myConnectionId,
+        roomId,
+        to: myConnectionId,
+      },
+    });
+  }
+
+  await Promise.all([
+    storeConnection(myConnectionId, roomId),
+    sendWebsocketMessage({
+      message: {
+        action: "newUserJoined",
+        from: myConnectionId,
+        to: "all",
+        data: myConnectionId,
+        roomId: roomId,
+      },
+    }),
+    storeAndSendRoomInfo(),
   ]);
 }

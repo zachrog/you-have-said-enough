@@ -34,15 +34,18 @@ import {
 } from "@/components/ui/tooltip";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Room } from "server/src/entities/Room";
 
 export function MediaBar({
-  audioWindow,
+  roomInfo,
   onMicChange,
   onCameraChange,
   onMicMuteChange,
   onCameraDisable,
+  onRoomChange,
 }: {
-  audioWindow: number;
+  roomInfo: Room;
+  onRoomChange: (room: Room) => void;
   onMicChange: (micId: string) => void;
   onCameraChange: (cameraId: string) => void;
   onMicMuteChange: (isMuted: boolean) => void;
@@ -82,7 +85,7 @@ export function MediaBar({
     <div className="bg-background border-t flex items-center justify-between px-4 py-3">
       <div className="flex items-center gap-8">
         <div className="flex items-center gap-2">
-          <RoomSettings />
+          <RoomSettings roomInfo={roomInfo} onRoomChange={onRoomChange} />
         </div>
         <div className="flex items-center gap-2">
           <MuteButton
@@ -161,20 +164,20 @@ export function MediaBar({
   );
 }
 
-function RoomSettings({}) {
+function RoomSettings({
+  roomInfo,
+  onRoomChange,
+}: {
+  roomInfo: Room;
+  onRoomChange: (room: Room) => void;
+}) {
   const [roomSettingsIsOpen, setRoomSettingsIsOpen] = useState(false);
-  const [settings, setSettings] = useState({
-    username: "",
-    videoQuality: "medium",
-    audioEnabled: true,
-    videoEnabled: true,
-    backgroundBlur: false,
-  });
 
-  const handleSave = () => {
-    console.log("Settings saved:", settings);
+  console.log("roomInfo", roomInfo);
+  function handleSave(room: Room) {
     setRoomSettingsIsOpen(false);
-  };
+    onRoomChange(room);
+  }
 
   return (
     <Dialog open={roomSettingsIsOpen} onOpenChange={setRoomSettingsIsOpen}>
@@ -184,54 +187,63 @@ function RoomSettings({}) {
         </Button>
       </DialogTrigger>
       <DialogContent className="w-[400px]">
-        <DialogHeader>
-          <DialogTitle>Room Settings</DialogTitle>
-          <DialogDescription>
-            It's always fun to screw with people.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex gap-4 py-4">
-          <div className="flex items-center justify-between w-full gap-4">
-            <div>
-              <Label htmlFor="audioWindow" className="text-md">
-                Audio Window
-              </Label>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <InfoIcon className="h-4 w-4 text-muted-foreground ml-2" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>
-                      What time period Zuumb will listen to audio and adjust the
-                      room.
-                      <br />
-                      The shorter the time the more chaotic.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <div className="flex flex-row items-center">
-              <Input
-                id="audioWindow"
-                value={settings.username}
-                type="number"
-                onChange={(e) =>
-                  setSettings({ ...settings, username: e.target.value })
-                }
-                className="w-20 text-right"
-              />
-              <p className="ml-1">s</p>
-              <div className="ml-2"></div>
+        <form
+          onSubmit={(e) => {
+            console.log((e.target as any).audioWindow.value);
+            e.preventDefault();
+            handleSave({
+              audioWindow: (e.target as any).audioWindow.value * 1000,
+              roomId: roomInfo.roomId,
+            });
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle>Room Settings</DialogTitle>
+            <DialogDescription>
+              It's always fun to screw with people.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-4 py-4">
+            <div className="flex items-center justify-between w-full gap-4">
+              <div>
+                <Label htmlFor="audioWindow" className="text-md">
+                  Audio Window
+                </Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <InfoIcon className="h-4 w-4 text-muted-foreground ml-2" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>
+                        What time period Zuumb will listen to audio and adjust
+                        the room.
+                        <br />
+                        The shorter the time the more chaotic.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="flex flex-row items-center">
+                <Input
+                  id="audioWindow"
+                  defaultValue={roomInfo.audioWindow / 1000}
+                  type="number"
+                  name="audioWindow"
+                  step="any"
+                  min="0"
+                  className="w-20 text-right"
+                />
+                <p className="ml-1">s</p>
+                <div className="ml-2"></div>
+              </div>
             </div>
           </div>
-        </div>
-        <DialogFooter>
-          <Button type="submit" onClick={handleSave}>
-            Save changes
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button type="submit">Save changes</Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

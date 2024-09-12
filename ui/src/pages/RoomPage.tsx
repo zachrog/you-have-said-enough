@@ -35,7 +35,8 @@ export function RoomPage() {
     roomId: roomId!,
     audioWindow: DEFAULT_AUDIO_WINDOW,
   });
-  const totalVideos = 6;
+  // const totalVideos = 9; // WHEN TESTING
+  const totalVideos = peerConnections.length + 1; // WHEN DEPLOYED
 
   useEffect(() => {
     // need to set remote streams
@@ -211,6 +212,18 @@ export function RoomPage() {
     }
   }
 
+  async function handleOnRoomChange(newRoomInfo: Room) {
+    if (!socketClient) return;
+    socketClient.sendMessage({
+      action: "updateRoom",
+      data: newRoomInfo,
+      roomId: newRoomInfo.roomId,
+      from: socketClient.myConnectionId,
+      to: "",
+    });
+    setRoomInfo(newRoomInfo);
+  }
+
   if (mediaAccessAvailability === "deciding") {
     return;
   }
@@ -245,7 +258,7 @@ export function RoomPage() {
             totalVideos >= 5 && "grid-cols-3",
           ])}
         >
-          {localStream && // Used for testing when you have no friends :(
+          {/* {localStream && // Used for testing when you have no friends :(
             new Array(totalVideos)
               .fill(undefined)
               .map((_, i) => (
@@ -255,14 +268,15 @@ export function RoomPage() {
                   local
                   audioWindow={roomInfo.audioWindow}
                 />
-              ))}
-          {/*localStream && (
+              ))} */}
+          {localStream && (
             <VideoComponent
               key={"local"}
               stream={localStream}
+              audioWindow={roomInfo.audioWindow}
               local
             />
-          ) */}
+          )}
           {peerConnections.map((remoteConnection) => {
             return (
               <>
@@ -276,7 +290,8 @@ export function RoomPage() {
           })}
         </div>
         <MediaBar
-          audioWindow={roomInfo.audioWindow}
+          roomInfo={roomInfo}
+          onRoomChange={handleOnRoomChange}
           onCameraDisable={handleCameraDisableChange}
           onMicChange={handleMicChange}
           onCameraChange={handleCameraChange}

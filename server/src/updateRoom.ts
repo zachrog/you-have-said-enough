@@ -2,7 +2,7 @@ import { sendWebsocketMessage } from "server/src/broadcastToRoom";
 import { upsertRoom } from "server/src/dynamo/upsertRoom";
 import { Room } from "server/src/entities/Room";
 
-export async function updateAudioWindow({
+export async function updateRoom({
   audioWindow,
   roomId,
   myConnectionId,

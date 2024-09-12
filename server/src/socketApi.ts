@@ -2,7 +2,7 @@ import { APIGatewayProxyWebsocketEventV2 } from "aws-lambda";
 import { removeConnection } from "./dynamo/removeConnection";
 import { sendWebsocketMessage } from "./broadcastToRoom";
 import { enterRoom } from "./enterRoom";
-import { updateAudioWindow } from "server/src/updateAudioWindow";
+import { updateRoom } from "server/src/updateRoom";
 
 export type WebSocketReturn = {
   statusCode: number;
@@ -15,7 +15,7 @@ export type ServerWebsocketMessage = {
     | "newIceCandidate"
     | "enterRoom"
     | "yourConnectionId"
-    | "updateAudioWindow";
+    | "updateRoom";
   to: string;
   from: string;
   data: any;
@@ -68,8 +68,8 @@ export async function defaultHandler(
         roomId: message.roomId,
       });
       break;
-    case "updateAudioWindow":
-      await updateAudioWindow({
+    case "updateRoom":
+      await updateRoom({
         audioWindow: message.data.audioWindow,
         roomId: message.roomId,
         myConnectionId: event.requestContext.connectionId,

@@ -22,13 +22,13 @@ export function VideoComponent({
       videoRef.current.srcObject = stream;
       if (local) videoRef.current.volume = 0;
     }
-  }, [videoRef]);
+  }, [videoRef, local, stream]);
 
   useEffect(() => {
     if (videoRef.current && !local) {
       videoRef.current.volume = scalingProportion;
     }
-  }, [videoRef, scalingProportion]);
+  }, [videoRef, scalingProportion, local]);
 
   useEffect(() => {
     const audioContext = new AudioContext();
@@ -103,12 +103,12 @@ export function VideoComponent({
 
     return () => {
       stream.removeEventListener("audioTrackAdded", audioTrackAddedListener);
-      audioContext.close();
+      audioContext.close().catch((e) => console.error(e));
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [trackId]);
+  }, [trackId, audioWindow, stream]);
 
   return (
     <div className="w-full min-w-0 min-h-0 overflow-hidden">

@@ -173,7 +173,6 @@ function RoomSettings({
 }) {
   const [roomSettingsIsOpen, setRoomSettingsIsOpen] = useState(false);
 
-  console.log("roomInfo", roomInfo);
   function handleSave(room: Room) {
     setRoomSettingsIsOpen(false);
     onRoomChange(room);

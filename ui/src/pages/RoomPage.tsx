@@ -20,7 +20,6 @@ import { DEFAULT_AUDIO_WINDOW } from "@/lib/audioStatistics";
 
 export function RoomPage() {
   const { roomId } = useParams();
-  const [_, setMyConnectionId] = useState<string>("");
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [peerConnections, setPeerConnections] = useState<VideoPeerConnection[]>(
     []
@@ -106,14 +105,13 @@ export function RoomPage() {
     if (!localStream) return;
     async function initSocketClient() {
       const newSocketClient = await createSocketClient();
-      setMyConnectionId(newSocketClient.myConnectionId);
       newSocketClient.addMessageListener(clientNewIceCandidate);
-      newSocketClient.addMessageListener((message) => {
-        someoneNewJoined(message, newSocketClient);
+      newSocketClient.addMessageListener(async (message) => {
+        await someoneNewJoined(message, newSocketClient);
       });
       newSocketClient.addMessageListener(clientNewAnswer);
-      newSocketClient.addMessageListener((message) => {
-        clientNewOffer(message, newSocketClient);
+      newSocketClient.addMessageListener(async (message) => {
+        await clientNewOffer(message, newSocketClient);
       });
       newSocketClient.addMessageListener((message) => {
         if (message.action === "roomInfo") {
@@ -130,7 +128,7 @@ export function RoomPage() {
       setSocketClient(newSocketClient);
     }
     if (!socketClient) {
-      initSocketClient();
+      initSocketClient().catch(console.error);
     }
 
     return () => {

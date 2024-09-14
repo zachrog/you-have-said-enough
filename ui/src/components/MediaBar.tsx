@@ -78,7 +78,7 @@ export function MediaBar({
       }
     }
 
-    initMediaDevices();
+    initMediaDevices().catch(console.error);
   }, []);
 
   return (
@@ -189,9 +189,10 @@ function RoomSettings({
       <DialogContent className="w-[400px]">
         <form
           onSubmit={(e) => {
-            console.log((e.target as any).audioWindow.value);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             e.preventDefault();
             handleSave({
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               audioWindow: (e.target as any).audioWindow.value * 1000,
               roomId: roomInfo.roomId,
             });

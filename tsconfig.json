@@ -25,6 +25,7 @@
       "@/*": ["./ui/src/*"]
     }
   },
-  "include": ["ui/src", "server/src"],
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", "dist"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

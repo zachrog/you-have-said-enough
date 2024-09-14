@@ -78,9 +78,9 @@ export class SocketClient {
   }
 
   addMessageListener(f: MessageListener): void {
-    const parsedListener = (event: MessageEvent) => {
+    const parsedListener = async (event: MessageEvent) => {
       const message: ClientWebsocketMessage = JSON.parse(event.data);
-      f(message);
+      await f(message);
     };
     this.messageListeners.push({ original: f, parsed: parsedListener });
     this.webSocket.addEventListener("message", parsedListener);

@@ -1,3 +1,2 @@
 - Low Pass filter on sizing
-- evaluate how to limit explosive costs in AWS
 - Test stability of changing input devices, cameras, and leaving joining lobbies.

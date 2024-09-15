@@ -1,3 +1,3 @@
 - Low Pass filter on sizing
 - evaluate how to limit explosive costs in AWS
-- Allow people to change the sound averaging time for the lobby
+- Test stability of changing input devices, cameras, and leaving joining lobbies.

@@ -59,11 +59,16 @@ export function RoomPage() {
       try {
         localMediaStream = await navigator.mediaDevices.getUserMedia({
           video: {
-            width: { ideal: 1920 },
-            height: { ideal: 1080 },
+            width: { min: 640, ideal: 1280, max: 1920 },
+            height: { min: 360, ideal: 720, max: 1080 },
             aspectRatio: 16 / 9,
+            frameRate: { ideal: 30, max: 60 },
           },
-          audio: true,
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
         });
         setMediaAccessAvailability("available");
         setLocalStream(localMediaStream);

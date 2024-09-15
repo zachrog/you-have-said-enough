@@ -32,7 +32,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Room } from "server/src/entities/Room";
 
@@ -172,6 +172,7 @@ function RoomSettings({
   onRoomChange: (room: Room) => void;
 }) {
   const [roomSettingsIsOpen, setRoomSettingsIsOpen] = useState(false);
+  const submitButtonRef = useRef<HTMLButtonElement>(null); // Create a ref for the input
 
   function handleSave(room: Room) {
     setRoomSettingsIsOpen(false);
@@ -185,7 +186,13 @@ function RoomSettings({
           <SettingsIcon className="w-6 h-6" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-[400px]">
+      <DialogContent
+        className="w-[400px]"
+        onOpenAutoFocus={(e) => {
+          e.preventDefault(); // Prevent the dialog from focusing on the first input
+          submitButtonRef.current?.focus();
+        }}
+      >
         <form
           onSubmit={(e) => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -241,7 +248,9 @@ function RoomSettings({
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Save changes</Button>
+            <Button type="submit" ref={submitButtonRef}>
+              Save changes
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

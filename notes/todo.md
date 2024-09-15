@@ -1,2 +1,1 @@
 - Low Pass filter on sizing
-- Test stability of changing input devices, cameras, and leaving joining lobbies.

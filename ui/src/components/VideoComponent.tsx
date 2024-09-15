@@ -86,7 +86,7 @@ export function VideoComponent({
           })
         );
         timeOfLastSample = now;
-        requestAnimationFrame(analyzeAudio); // Does this create a perpetual loop even if we add a new mic?
+        animationFrameId = requestAnimationFrame(analyzeAudio); // Does this create a perpetual loop even if we add a new mic?
       }
 
       analyzeAudio();

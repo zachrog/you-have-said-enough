@@ -1,5 +1,9 @@
 import { getSocketClient } from "./getSocketClient";
-import { PostToConnectionCommand } from "@aws-sdk/client-apigatewaymanagementapi";
+import {
+  GoneException,
+  PostToConnectionCommand,
+  PostToConnectionCommandInput,
+} from "@aws-sdk/client-apigatewaymanagementapi";
 import { ClientWebsocketMessage } from "../../ui/src/socketClient";
 import { getAllConnections } from "./dynamo/getAllConnections";
 
@@ -14,12 +18,10 @@ export async function sendWebsocketMessage({
       message: message,
     });
   } else {
-    await getSocketClient().send(
-      new PostToConnectionCommand({
-        ConnectionId: message.to,
-        Data: JSON.stringify(message),
-      })
-    );
+    await apiGatewaySendMessage({
+      ConnectionId: message.to,
+      Data: JSON.stringify(message),
+    });
   }
 }
 
@@ -33,16 +35,29 @@ async function broadcastToRoom({
   const connectionIds = await getAllConnections(message.roomId);
   connectionIds.delete(myConnectionId);
 
-  const socketClient = getSocketClient();
-
   await Promise.all(
     Array.from(connectionIds.values()).map(async (connection) => {
-      await socketClient.send(
-        new PostToConnectionCommand({
-          ConnectionId: connection.connectionId,
-          Data: JSON.stringify(message),
-        })
-      );
+      await apiGatewaySendMessage({
+        ConnectionId: connection.connectionId,
+        Data: JSON.stringify(message),
+      });
     })
   );
+}
+
+async function apiGatewaySendMessage(
+  command: PostToConnectionCommandInput
+): Promise<void> {
+  try {
+    await getSocketClient().send(new PostToConnectionCommand(command));
+  } catch (e) {
+    if (e instanceof GoneException) {
+      console.log(
+        "connection no longer exists, so cannot send message: ",
+        command.ConnectionId
+      );
+      return;
+    }
+    throw e;
+  }
 }

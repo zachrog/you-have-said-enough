@@ -44,7 +44,7 @@ export function VideoComponent({
 
       source.connect(analyser);
 
-      let timeOfLastSample = 0;
+      let timeOfLastSample = performance.now();
       let timeTalkingInWindow = 0;
       const speechHistory: { timeSpentTalking: number; recordedAt: number }[] =
         [];
@@ -60,7 +60,7 @@ export function VideoComponent({
         const average = Math.sqrt(sum / bufferLength);
 
         // Determine if the user is speaking
-        const now = Date.now();
+        const now = performance.now();
         const timeBetweenSamps = now - timeOfLastSample;
         const userWasTalking = average > 0.01;
         const timeSpentTalking = userWasTalking ? timeBetweenSamps : 0;

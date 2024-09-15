@@ -268,13 +268,11 @@ export function RoomPage() {
           )}
           {peerConnections.map((remoteConnection) => {
             return (
-              <>
-                <VideoComponent
-                  stream={remoteConnection.remoteMediaStream}
-                  key={remoteConnection.peerId}
-                  audioWindow={roomInfo.audioWindow}
-                />
-              </>
+              <VideoComponent
+                stream={remoteConnection.remoteMediaStream}
+                key={remoteConnection.peerId}
+                audioWindow={roomInfo.audioWindow}
+              />
             );
           })}
         </div>

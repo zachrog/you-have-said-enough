@@ -40,7 +40,7 @@ export default $config({
       ],
     });
     socketApi.route("$disconnect", {
-      handler: "server/src/socketApi.disconnectHandler",
+      handler: "server/src/disconnectHandler.disconnectHandler",
       environment: {
         VITE_DBNAME: dbName,
         VITE_WEBSOCKET_URL: socketApi.url,

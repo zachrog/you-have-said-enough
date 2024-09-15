@@ -8,6 +8,7 @@ export type ClientWebsocketMessage = {
     | "newIceCandidate"
     | "yourConnectionId"
     | "newUserJoined"
+    | "userDisconnected"
     | "roomInfo";
   to: string;
   from: string;

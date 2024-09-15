@@ -137,6 +137,19 @@ class RtcPeerConnectionManager {
     rtcPeerConnection.remoteIceCandidates.push(iceCandidate);
   }
 
+  closePeerConnection(peerId: string) {
+    const peerConnection = this.videoPeerConnections.get(peerId);
+    if (!peerConnection) {
+      console.log("No peer connection to close: ", peerId);
+      return;
+    }
+
+    peerConnection.rtcPeerConnection.close();
+    this.videoPeerConnections.delete(peerId);
+    this.listeners.forEach((listener) => listener());
+
+  }
+
   async drainIceCandidates({ peerId }: { peerId: string }): Promise<void> {
     const peer = this.videoPeerConnections.get(peerId);
     if (!peer) {

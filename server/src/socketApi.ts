@@ -1,5 +1,4 @@
 import { APIGatewayProxyWebsocketEventV2 } from "aws-lambda";
-import { removeConnection } from "./dynamo/removeConnection";
 import { sendWebsocketMessage } from "./broadcastToRoom";
 import { enterRoom } from "./enterRoom";
 import { updateRoom } from "server/src/updateRoom";
@@ -21,14 +20,6 @@ export type ServerWebsocketMessage = {
   data: any;
   roomId: string;
 };
-
-export async function disconnectHandler(
-  event: APIGatewayProxyWebsocketEventV2
-): Promise<WebSocketReturn> {
-  console.log("disconnect event: ", event);
-  await removeConnection(event.requestContext.connectionId);
-  return { statusCode: 200 };
-}
 
 export async function defaultHandler(
   event: APIGatewayProxyWebsocketEventV2

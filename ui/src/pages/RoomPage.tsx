@@ -48,26 +48,7 @@ export function RoomPage() {
       rtcPeerConnectionManager
         .getPeerConnections()
         .forEach((peerConnection) => {
-          // Close the senders' tracks
-          peerConnection.rtcPeerConnection.getSenders().forEach((sender) => {
-            const track = sender.track;
-            if (track) {
-              track.stop();
-            }
-          });
-
-          // Close the receivers' tracks (for remote tracks)
-          peerConnection.rtcPeerConnection
-            .getReceivers()
-            .forEach((receiver) => {
-              const track = receiver.track;
-              if (track) {
-                track.stop();
-              }
-            });
-
-          // Close the peer connection
-          peerConnection.rtcPeerConnection.close();
+          rtcPeerConnectionManager.closePeerConnection(peerConnection.peerId);
         });
     };
   }, []);
@@ -94,7 +75,7 @@ export function RoomPage() {
       }
     };
 
-    getUserMedia();
+    getUserMedia().catch(console.error);
 
     return () => {
       localMediaStream.getTracks().forEach((track) => track.stop());
@@ -116,6 +97,11 @@ export function RoomPage() {
       newSocketClient.addMessageListener((message) => {
         if (message.action === "roomInfo") {
           setRoomInfo(message.data);
+        }
+      });
+      newSocketClient.addMessageListener((message) => {
+        if (message.action === "userDisconnected") {
+          rtcPeerConnectionManager.closePeerConnection(message.from);
         }
       });
       newSocketClient.sendMessage({

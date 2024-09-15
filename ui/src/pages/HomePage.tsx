@@ -26,7 +26,6 @@ export function HomePage() {
                 type="text"
                 placeholder="Join or Create Room"
                 className="flex-1 border-none bg-transparent focus-visible:ring-transparent"
-                name="jojo"
                 value={roomId}
                 onChange={(e) => setRoomId(e.target.value)}
               />

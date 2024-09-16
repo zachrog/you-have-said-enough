@@ -8,7 +8,8 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "start": "vite",
-    "deploy": "sst deploy --stage=prod"
+    "deploy": "sst deploy --stage=prod",
+    "destroy": "sst remove --stage=prod"
   },
   "dependencies": {
     "@aws-sdk/client-apigatewaymanagementapi": "^3.588.0",

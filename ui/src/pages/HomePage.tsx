@@ -1,4 +1,5 @@
 import { RightArrowIcon } from "@/components/icons/icons";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -29,7 +30,17 @@ export function HomePage() {
                 value={roomId}
                 onChange={(e) => setRoomId(e.target.value)}
               />
-              <RightArrowIcon className="h-6 w-6" />
+              <Button
+                className=""
+                variant="ghost"
+                size="icon"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate(`/room/${roomId}`);
+                }}
+              >
+                <RightArrowIcon className="h-6 w-6" />
+              </Button>
             </form>
           </div>
         </div>

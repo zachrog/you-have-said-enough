@@ -4,6 +4,13 @@ type SpeechUser = {
   stream: MediaStream;
   analyser: AnalyserNode;
   source: MediaStreamAudioSourceNode;
+  speechData: Uint8Array;
+};
+
+type SpeechOutput = {
+  scalar: number; // Proportion between 0-1
+  isTalking: boolean;
+  peerId: string;
 };
 
 class SpeechCurrency {
@@ -18,6 +25,13 @@ class SpeechCurrency {
     const audioContext = new AudioContext();
     const source = audioContext.createMediaStreamSource(stream);
     const analyser = audioContext.createAnalyser();
+    stream.addEventListener("audioTrackAdded", () => {
+      // console.log("Audio track replace detected");
+      // Should We do something when the user changes microphones?
+    });
+    analyser.fftSize = 2048;
+    const speechData = new Uint8Array(analyser.fftSize);
+    source.connect(analyser);
 
     this.userMap.set(peerId, {
       analyser,
@@ -25,7 +39,9 @@ class SpeechCurrency {
       audioContext,
       source,
       stream,
+      speechData,
     });
+
   }
 
   removeUser(peerId: string) {
@@ -39,10 +55,30 @@ class SpeechCurrency {
     this.userMap.delete(peerId);
   }
 
-  getRoomScale() {}
+  getRoomScale(): Map<string, SpeechOutput> {
+    const roomScale: Map<string, SpeechOutput> = new Map();
+    this.userMap.forEach((user) => {
+      const bufferLength = user.analyser.fftSize;
+      user.analyser.getByteTimeDomainData(user.speechData);
+
+      // Calculate the average audio level
+      let sum = 0;
+      for (let i = 0; i < bufferLength; i++) {
+        const value = user.speechData[i] / 128 - 1;
+        sum += value * value;
+      }
+      const average = Math.sqrt(sum / bufferLength);
+
+      const isTalking = average > 0.01;
+      roomScale.set(user.peerId, { isTalking, peerId: user.peerId, scalar: 1 });
+    });
+    return roomScale;
+  }
 
   speechTick() {}
 }
+
+export const speechCurrency = new SpeechCurrency();
 
 /*
 Needs to be able to hold context of all participants 

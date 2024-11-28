@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { VideoComponent } from "../components/VideoComponent";
 import {
   VideoPeerConnection,
   rtcPeerConnectionManager,
@@ -17,6 +16,8 @@ import { useParams } from "react-router-dom";
 import clsx from "clsx";
 import { Room } from "server/src/entities/Room";
 import { DEFAULT_AUDIO_WINDOW } from "@/lib/audioStatistics";
+import { VideoComponent } from "@/components/VideoComponentDumb";
+import { speechCurrency } from "@/speechCurrency";
 
 export function RoomPage() {
   const { roomId } = useParams();
@@ -34,8 +35,8 @@ export function RoomPage() {
     roomId: roomId!,
     audioWindow: DEFAULT_AUDIO_WINDOW,
   });
-  // const totalVideos = 9; // WHEN TESTING
-  const totalVideos = peerConnections.length + 1; // WHEN DEPLOYED
+  const totalVideos = 8; // WHEN TESTING
+  // const totalVideos = peerConnections.length + 1; // WHEN DEPLOYED
 
   useEffect(() => {
     // need to set remote streams
@@ -89,6 +90,7 @@ export function RoomPage() {
 
   useEffect(() => {
     if (!localStream) return;
+    speechCurrency.addUser({ peerId: "local", stream: localStream });
     async function initSocketClient() {
       const newSocketClient = await createSocketClient();
       newSocketClient.addMessageListener(clientNewIceCandidate);
@@ -127,7 +129,7 @@ export function RoomPage() {
         socketClient.close();
       }
     };
-  }, [localStream, socketClient]);
+  }, [localStream, socketClient, roomId]);
 
   function handleMicMuteChange(isMuted: boolean) {
     const localAudioTrack = localStream?.getAudioTracks()?.[0];
@@ -247,31 +249,24 @@ export function RoomPage() {
             totalVideos >= 5 && "grid-cols-3",
           ])}
         >
-          {/* {localStream && // Used for testing when you have no friends :(
+          {localStream && // Used for testing when you have no friends :(
             new Array(totalVideos)
               .fill(undefined)
               .map((_, i) => (
-                <VideoComponent
-                  key={i}
-                  stream={localStream}
-                  local
-                  audioWindow={roomInfo.audioWindow}
-                />
-              ))} */}
-          {localStream && (
+                <VideoComponent key={i} stream={localStream} local />
+              ))}
+          {/* {localStream && (
             <VideoComponent
               key={"local"}
               stream={localStream}
-              audioWindow={roomInfo.audioWindow}
               local
             />
-          )}
+          )} */}
           {peerConnections.map((remoteConnection) => {
             return (
               <VideoComponent
                 stream={remoteConnection.remoteMediaStream}
                 key={remoteConnection.peerId}
-                audioWindow={roomInfo.audioWindow}
               />
             );
           })}

@@ -4,10 +4,10 @@ import { clsx } from "clsx";
 export function VideoComponent({
   stream,
   local,
-  scaler,
+  scalar,
   isTalking,
 }: {
-  scaler: number;
+  scalar: number;
   isTalking: boolean;
   stream: MediaStream;
   local?: boolean;
@@ -17,15 +17,14 @@ export function VideoComponent({
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.srcObject = stream;
-      if (local) videoRef.current.volume = 0;
     }
   }, [videoRef, local, stream]);
 
   useEffect(() => {
-    if (videoRef.current && !local) {
-      videoRef.current.volume = scaler;
+    if (videoRef.current) {
+      videoRef.current.volume = local ? 0 : 1; //100 should be scalar;
     }
-  }, [videoRef, scaler, local]);
+  }, [videoRef, scalar, local]);
 
   return (
     <div className="w-full min-w-0 min-h-0 overflow-hidden">
@@ -35,7 +34,7 @@ export function VideoComponent({
           isTalking && "border-emerald-400",
           isTalking && "border-2",
         ])}
-        style={{ transform: `scale(${scaler})` }}
+        style={{ transform: `scale(${scalar})` }}
         ref={videoRef}
         autoPlay
         playsInline

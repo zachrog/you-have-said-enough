@@ -7,7 +7,7 @@ type SpeechUser = {
   speechData: Uint8Array;
 };
 
-type SpeechOutput = {
+export type SpeechOutput = {
   scalar: number; // Proportion between 0-1
   isTalking: boolean;
   peerId: string;
@@ -17,9 +17,12 @@ class SpeechCurrency {
   private userMap: Map<string, SpeechUser> = new Map();
   constructor() {}
 
-  reset() {}
-
-  speak() {}
+  clear() {
+    this.userMap.forEach((user) => {
+      user.audioContext.close().catch((e) => console.error(e));
+    });
+    this.userMap = new Map();
+  }
 
   addUser({ peerId, stream }: { peerId: string; stream: MediaStream }) {
     const audioContext = new AudioContext();
@@ -41,7 +44,6 @@ class SpeechCurrency {
       stream,
       speechData,
     });
-
   }
 
   removeUser(peerId: string) {
@@ -74,8 +76,6 @@ class SpeechCurrency {
     });
     return roomScale;
   }
-
-  speechTick() {}
 }
 
 export const speechCurrency = new SpeechCurrency();

@@ -17,42 +17,17 @@ import clsx from "clsx";
 import { Room } from "server/src/entities/Room";
 import { DEFAULT_AUDIO_WINDOW } from "@/lib/audioStatistics";
 import { VideoComponent } from "@/components/VideoComponentDumb";
-import { speechCurrency } from "@/speechCurrency";
+import { speechCurrency, SpeechOutput } from "@/speechCurrency";
 
 export function RoomPage() {
   const { roomId } = useParams();
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
-  const [peerConnections, setPeerConnections] = useState<VideoPeerConnection[]>(
-    []
-  );
   const [socketClient, setSocketClient] = useState<SocketClient | undefined>(
     undefined
   );
   const [mediaAccessAvailability, setMediaAccessAvailability] = useState<
     "deciding" | "blocked" | "available"
   >("deciding");
-  const [roomInfo, setRoomInfo] = useState<Room>({
-    roomId: roomId!,
-    audioWindow: DEFAULT_AUDIO_WINDOW,
-  });
-  const totalVideos = 8; // WHEN TESTING
-  // const totalVideos = peerConnections.length + 1; // WHEN DEPLOYED
-
-  useEffect(() => {
-    // need to set remote streams
-    // We do not want to add multiple listeners every time the component re-renders
-    rtcPeerConnectionManager.listeners.push(() => {
-      setPeerConnections(rtcPeerConnectionManager.getPeerConnections());
-    });
-
-    return () => {
-      rtcPeerConnectionManager
-        .getPeerConnections()
-        .forEach((peerConnection) => {
-          rtcPeerConnectionManager.closePeerConnection(peerConnection.peerId);
-        });
-    };
-  }, []);
 
   useEffect(() => {
     let localMediaStream: MediaStream;
@@ -89,47 +64,150 @@ export function RoomPage() {
   }, []);
 
   useEffect(() => {
-    if (!localStream) return;
-    speechCurrency.addUser({ peerId: "local", stream: localStream });
+    let newSocketClient: SocketClient;
     async function initSocketClient() {
-      const newSocketClient = await createSocketClient();
-      newSocketClient.addMessageListener(clientNewIceCandidate);
-      newSocketClient.addMessageListener(async (message) => {
-        await someoneNewJoined(message, newSocketClient);
-      });
-      newSocketClient.addMessageListener(clientNewAnswer);
-      newSocketClient.addMessageListener(async (message) => {
-        await clientNewOffer(message, newSocketClient);
-      });
-      newSocketClient.addMessageListener((message) => {
-        if (message.action === "roomInfo") {
-          setRoomInfo(message.data);
-        }
-      });
-      newSocketClient.addMessageListener((message) => {
-        if (message.action === "userDisconnected") {
-          rtcPeerConnectionManager.closePeerConnection(message.from);
-        }
-      });
-      newSocketClient.sendMessage({
-        roomId: roomId!,
-        action: "enterRoom",
-        data: "",
-        from: "",
-        to: "",
-      });
+      newSocketClient = await createSocketClient();
       setSocketClient(newSocketClient);
     }
-    if (!socketClient) {
-      initSocketClient().catch(console.error);
-    }
 
+    initSocketClient().catch(console.error);
     return () => {
-      if (socketClient) {
-        socketClient.close();
+      if (newSocketClient) {
+        newSocketClient.close();
       }
     };
-  }, [localStream, socketClient, roomId]);
+  }, []);
+
+  if (
+    mediaAccessAvailability === "deciding" ||
+    !localStream ||
+    !roomId ||
+    !socketClient
+  ) {
+    return;
+  }
+
+  if (mediaAccessAvailability === "blocked") {
+    return (
+      <>
+        <div className="flex items-center justify-center min-h-[100dvh]">
+          <div className="w-1/2">
+            <h1 className="text-5xl text-center font-bold mb-10">
+              Camera Error
+            </h1>
+            <p className="text-3xl font-light">
+              Look... We are really going to need access to your camera for this
+              whole thing to work. Please enable it in your browser settings and
+              refresh, or stare at a black screen. Your call.
+            </p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <LoadedRoom
+        localStream={localStream}
+        roomId={roomId}
+        socketClient={socketClient}
+      />
+    </>
+  );
+}
+
+export function LoadedRoom({
+  roomId,
+  localStream,
+  socketClient,
+}: {
+  roomId: string;
+  localStream: MediaStream;
+  socketClient: SocketClient;
+}) {
+  const [peerConnections, setPeerConnections] = useState<VideoPeerConnection[]>(
+    []
+  );
+  const [roomInfo, setRoomInfo] = useState<Room>({
+    roomId: roomId,
+    audioWindow: DEFAULT_AUDIO_WINDOW,
+  });
+  const [roomScale, setRoomScale] = useState<Map<string, SpeechOutput>>(
+    new Map()
+  );
+  const totalVideos = 8; // WHEN TESTING
+  // const totalVideos = peerConnections.length + 1; // WHEN DEPLOYED
+
+  useEffect(() => {
+    // need to set remote streams
+    // We do not want to add multiple listeners every time the component re-renders
+    rtcPeerConnectionManager.listeners.push(() => {
+      setPeerConnections(rtcPeerConnectionManager.getPeerConnections());
+    });
+
+    return () => {
+      rtcPeerConnectionManager
+        .getPeerConnections()
+        .forEach((peerConnection) => {
+          rtcPeerConnectionManager.closePeerConnection(peerConnection.peerId);
+        });
+    };
+  }, []);
+
+  useEffect(() => {
+    socketClient.addMessageListener(clientNewIceCandidate);
+    socketClient.addMessageListener(async (message) => {
+      await someoneNewJoined(message, socketClient);
+    });
+    socketClient.addMessageListener(clientNewAnswer);
+    socketClient.addMessageListener(async (message) => {
+      await clientNewOffer(message, socketClient);
+    });
+    socketClient.addMessageListener((message) => {
+      if (message.action === "roomInfo") {
+        setRoomInfo(message.data);
+      }
+    });
+    socketClient.addMessageListener((message) => {
+      if (message.action === "userDisconnected") {
+        rtcPeerConnectionManager.closePeerConnection(message.from);
+      }
+    });
+    socketClient.sendMessage({
+      roomId: roomId,
+      action: "enterRoom",
+      data: "",
+      from: "",
+      to: "",
+    });
+
+    return () => {};
+  }, [roomId, socketClient]);
+
+  useEffect(() => {
+    let animationFrameId: number;
+    function infinitelyUpdateRoomScale() {
+      const roomScale2 = speechCurrency.getRoomScale();
+      // roomScale2.forEach((user) => {
+      //   if (user.isTalking) {
+      //     console.log(`${user.peerId} is talking!!!`);
+      //   }
+      // });
+      setRoomScale(new Map(roomScale2));
+      animationFrameId = requestAnimationFrame(infinitelyUpdateRoomScale);
+    }
+    infinitelyUpdateRoomScale();
+    speechCurrency.addUser({
+      peerId: socketClient.myConnectionId,
+      stream: localStream,
+    });
+
+    return () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      speechCurrency.clear();
+    };
+  }, []);
 
   function handleMicMuteChange(isMuted: boolean) {
     const localAudioTrack = localStream?.getAudioTracks()?.[0];
@@ -215,29 +293,6 @@ export function RoomPage() {
     setRoomInfo(newRoomInfo);
   }
 
-  if (mediaAccessAvailability === "deciding") {
-    return;
-  }
-
-  if (mediaAccessAvailability === "blocked") {
-    return (
-      <>
-        <div className="flex items-center justify-center min-h-[100dvh]">
-          <div className="w-1/2">
-            <h1 className="text-5xl text-center font-bold mb-10">
-              Camera Error
-            </h1>
-            <p className="text-3xl font-light">
-              Look... We are really going to need access to your camera for this
-              whole thing to work. Please enable it in your browser settings and
-              refresh, or stare at a black screen. Your call.
-            </p>
-          </div>
-        </div>
-      </>
-    );
-  }
-
   return (
     <>
       <div className="h-screen w-full flex flex-col justify-between">
@@ -253,7 +308,18 @@ export function RoomPage() {
             new Array(totalVideos)
               .fill(undefined)
               .map((_, i) => (
-                <VideoComponent key={i} stream={localStream} local />
+                <VideoComponent
+                  key={i}
+                  stream={localStream}
+                  local
+                  isTalking={
+                    roomScale.get(socketClient.myConnectionId)?.isTalking ||
+                    false
+                  }
+                  scalar={
+                    roomScale.get(socketClient.myConnectionId)?.scalar || 1
+                  }
+                />
               ))}
           {/* {localStream && (
             <VideoComponent
@@ -267,6 +333,10 @@ export function RoomPage() {
               <VideoComponent
                 stream={remoteConnection.remoteMediaStream}
                 key={remoteConnection.peerId}
+                isTalking={
+                  roomScale.get(remoteConnection.peerId)?.isTalking || false
+                }
+                scalar={roomScale.get(remoteConnection.peerId)?.scalar || 1}
               />
             );
           })}

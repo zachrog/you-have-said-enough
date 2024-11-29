@@ -22,7 +22,7 @@ class RtcPeerConnectionManager {
     iceCandidatePoolSize: 10,
   };
   private localMediaStream: MediaStream; // Ignore for now. We should create this ASAP
-  listeners: Function[] = [];
+  listeners: Array<(peerConnection: VideoPeerConnection) => void> = [];
 
   constructor() {}
 
@@ -73,23 +73,26 @@ class RtcPeerConnectionManager {
     rtcPeerConnection.addEventListener("connectionstatechange", () => {
       if (rtcPeerConnection.connectionState === "failed") {
         rtcPeerConnection.close();
+        const deletedConnection = this.videoPeerConnections.get(peerId);
         this.videoPeerConnections.delete(peerId);
-        for (let index = 0; index < this.listeners.length; index++) {
-          const listener = this.listeners[index];
-          listener();
+        if (deletedConnection) {
+          this.listeners.forEach((listener) => {
+            listener(deletedConnection);
+          });
         }
       }
     });
 
     const remoteMediaStream = new MediaStream();
-    this.videoPeerConnections.set(peerId, {
+    const peerConnection = {
       peerId,
       rtcPeerConnection,
       remoteMediaStream,
       readyToForwardRemoteIceCandidates: false,
       remoteIceCandidates: [],
-    });
-    this.listeners.forEach((listener) => listener());
+    };
+    this.videoPeerConnections.set(peerId, peerConnection);
+    this.listeners.forEach((listener) => listener(peerConnection));
 
     rtcPeerConnection.ontrack = (event) => {
       event.streams[0].getTracks().forEach((track) => {
@@ -146,8 +149,7 @@ class RtcPeerConnectionManager {
 
     peerConnection.rtcPeerConnection.close();
     this.videoPeerConnections.delete(peerId);
-    this.listeners.forEach((listener) => listener());
-
+    this.listeners.forEach((listener) => listener(peerConnection));
   }
 
   async drainIceCandidates({ peerId }: { peerId: string }): Promise<void> {

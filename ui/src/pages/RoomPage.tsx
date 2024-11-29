@@ -189,11 +189,6 @@ export function LoadedRoom({
     let animationFrameId: number;
     function infinitelyUpdateRoomScale() {
       const roomScale2 = speechCurrency.getRoomScale();
-      // roomScale2.forEach((user) => {
-      //   if (user.isTalking) {
-      //     console.log(`${user.peerId} is talking!!!`);
-      //   }
-      // });
       setRoomScale(new Map(roomScale2));
       animationFrameId = requestAnimationFrame(infinitelyUpdateRoomScale);
     }

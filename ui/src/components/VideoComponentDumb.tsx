@@ -22,7 +22,7 @@ export function VideoComponent({
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.volume = local ? 0 : 1; //100 should be scalar;
+      videoRef.current.volume = local ? 0 : scalar;
     }
   }, [videoRef, scalar, local]);
 

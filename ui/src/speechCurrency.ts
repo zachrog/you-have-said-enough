@@ -1,4 +1,4 @@
-type SpeechUser = {
+export type SpeechUser = {
   peerId: string;
   audioContext: AudioContext;
   stream: MediaStream;
@@ -6,16 +6,13 @@ type SpeechUser = {
   source: MediaStreamAudioSourceNode;
   speechData: Uint8Array;
   timeLeft: number;
-};
-
-export type SpeechOutput = {
   scalar: number; // Proportion between 0-1
   isTalking: boolean;
-  peerId: string;
 };
 
 class SpeechCurrency {
   audioWindow = 5000;
+  private lastSpeechSample: number = 0;
   private userMap: Map<string, SpeechUser> = new Map();
   constructor() {}
 
@@ -52,6 +49,8 @@ class SpeechCurrency {
       stream,
       speechData,
       timeLeft: this.audioWindow,
+      isTalking: false,
+      scalar: 1,
     });
   }
 
@@ -66,24 +65,52 @@ class SpeechCurrency {
     this.userMap.delete(peerId);
   }
 
-  getRoomScale(): Map<string, SpeechOutput> {
-    const roomScale: Map<string, SpeechOutput> = new Map();
-    this.userMap.forEach((user) => {
-      const bufferLength = user.analyser.fftSize;
-      user.analyser.getByteTimeDomainData(user.speechData);
+  getRoomScale(): Map<string, SpeechUser> {
+    const timeSinceLastSample = performance.now() - this.lastSpeechSample;
+    const timeToDonate = timeSinceLastSample / (this.userMap.size - 1);
+
+    // Check if each user is talking and donate time to other users if they are
+    this.userMap.forEach((speakingUser) => {
+      const bufferLength = speakingUser.analyser.fftSize;
+      speakingUser.analyser.getByteTimeDomainData(speakingUser.speechData);
 
       // Calculate the average audio level
       let sum = 0;
       for (let i = 0; i < bufferLength; i++) {
-        const value = user.speechData[i] / 128 - 1;
+        const value = speakingUser.speechData[i] / 128 - 1;
         sum += value * value;
       }
       const average = Math.sqrt(sum / bufferLength);
 
       const isTalking = average > 0.01;
-      roomScale.set(user.peerId, { isTalking, peerId: user.peerId, scalar: 1 });
+      speakingUser.isTalking = isTalking;
+      if (!speakingUser.isTalking || speakingUser.timeLeft <= timeSinceLastSample) {
+        return;
+      }
+
+      // Donte time to each user
+      this.userMap.forEach((peer) => {
+        if (peer.peerId === speakingUser.peerId) {
+          peer.timeLeft = peer.timeLeft - timeSinceLastSample;
+          return;
+        }
+        peer.timeLeft = peer.timeLeft + timeToDonate;
+      });
     });
-    return roomScale;
+
+    // Find the maximum time in the group
+    let maxTimeLeft = 0;
+    this.userMap.forEach((user) => {
+      if (user.timeLeft > maxTimeLeft) maxTimeLeft = user.timeLeft;
+    });
+
+    // Set scalar values
+    this.userMap.forEach((user) => {
+      user.scalar = Math.min(Math.max(user.timeLeft / maxTimeLeft, 0), 1); // Clamp values betwen 0 and 1
+    });
+
+    this.lastSpeechSample = performance.now();
+    return this.userMap;
   }
 }
 
@@ -122,6 +149,11 @@ Person 2: 5.0s -> 50%;
 Person 4: 10s -> 100%;
 
 
+- Determine if user was talking
+  - If user was not talking do nothing
+  - If user was talking deduct the amount they were talking from themselves and give to all other members
+- Once all times have been added find the person with the most speech.
+- Divide each users speech by the user with the most speech to get scalar value.
 
 
 */

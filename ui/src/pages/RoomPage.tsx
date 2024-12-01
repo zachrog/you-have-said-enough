@@ -17,7 +17,7 @@ import clsx from "clsx";
 import { Room } from "server/src/entities/Room";
 import { DEFAULT_AUDIO_WINDOW } from "@/lib/audioStatistics";
 import { VideoComponent } from "@/components/VideoComponentDumb";
-import { speechCurrency, SpeechOutput } from "@/speechCurrency";
+import { speechCurrency, SpeechUser } from "@/speechCurrency";
 
 export function RoomPage() {
   const { roomId } = useParams();
@@ -133,11 +133,11 @@ export function LoadedRoom({
     roomId: roomId,
     audioWindow: DEFAULT_AUDIO_WINDOW,
   });
-  const [roomScale, setRoomScale] = useState<Map<string, SpeechOutput>>(
+  const [roomScale, setRoomScale] = useState<Map<string, SpeechUser>>(
     new Map()
   );
-  const totalVideos = 8; // WHEN TESTING
-  // const totalVideos = peerConnections.length + 1; // WHEN DEPLOYED
+  // const totalVideos = 8; // WHEN TESTING
+  const totalVideos = peerConnections.length + 1; // WHEN DEPLOYED
 
   useEffect(() => {
     // need to set remote streams
@@ -307,7 +307,7 @@ export function LoadedRoom({
             totalVideos >= 5 && "grid-cols-3",
           ])}
         >
-          {localStream && // Used for testing when you have no friends :(
+          {/* {localStream && // Used for testing when you have no friends :(
             new Array(totalVideos)
               .fill(undefined)
               .map((_, i) => (
@@ -323,24 +323,38 @@ export function LoadedRoom({
                     roomScale.get(socketClient.myConnectionId)?.scalar || 1
                   }
                 />
-              ))}
-          {/* {localStream && (
-            <VideoComponent
-              key={"local"}
-              stream={localStream}
-              local
-            />
-          )} */}
+              ))} */}
+          {localStream && (
+            <>
+              <VideoComponent
+                key={"local"}
+                stream={localStream}
+                local
+                isTalking={
+                  roomScale.get(socketClient.myConnectionId)?.isTalking || false
+                }
+                scalar={roomScale.get(socketClient.myConnectionId)?.scalar || 1}
+              />
+              <p>
+                timeLeft: {roomScale.get(socketClient.myConnectionId)?.timeLeft}
+              </p>
+            </>
+          )}
           {peerConnections.map((remoteConnection) => {
             return (
-              <VideoComponent
-                stream={remoteConnection.remoteMediaStream}
-                key={remoteConnection.peerId}
-                isTalking={
-                  roomScale.get(remoteConnection.peerId)?.isTalking || false
-                }
-                scalar={roomScale.get(remoteConnection.peerId)?.scalar || 1}
-              />
+              <>
+                <VideoComponent
+                  stream={remoteConnection.remoteMediaStream}
+                  key={remoteConnection.peerId}
+                  isTalking={
+                    roomScale.get(remoteConnection.peerId)?.isTalking || false
+                  }
+                  scalar={roomScale.get(remoteConnection.peerId)?.scalar || 1}
+                />
+                <p>
+                  timeLeft: {roomScale.get(remoteConnection.peerId)?.timeLeft}
+                </p>
+              </>
             );
           })}
         </div>

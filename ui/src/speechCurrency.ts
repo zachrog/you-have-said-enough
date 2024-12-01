@@ -5,6 +5,7 @@ type SpeechUser = {
   analyser: AnalyserNode;
   source: MediaStreamAudioSourceNode;
   speechData: Uint8Array;
+  timeLeft: number;
 };
 
 export type SpeechOutput = {
@@ -14,6 +15,7 @@ export type SpeechOutput = {
 };
 
 class SpeechCurrency {
+  audioWindow = 5000;
   private userMap: Map<string, SpeechUser> = new Map();
   constructor() {}
 
@@ -24,14 +26,20 @@ class SpeechCurrency {
     this.userMap = new Map();
   }
 
-  addUser({ peerId, stream }: { peerId: string; stream: MediaStream }) {
+  async addUser({ peerId, stream }: { peerId: string; stream: MediaStream }) {
+    if (!stream.active) {
+      // Remote streams have their audio tracks added later on
+      await new Promise<void>((resolve) => {
+        function WaitForAudioTracks() {
+          resolve();
+          stream.removeEventListener("audioTrackAdded", WaitForAudioTracks);
+        }
+        stream.addEventListener("audioTrackAdded", WaitForAudioTracks);
+      });
+    }
     const audioContext = new AudioContext();
     const source = audioContext.createMediaStreamSource(stream);
     const analyser = audioContext.createAnalyser();
-    stream.addEventListener("audioTrackAdded", () => {
-      // console.log("Audio track replace detected");
-      // Should We do something when the user changes microphones?
-    });
     analyser.fftSize = 2048;
     const speechData = new Uint8Array(analyser.fftSize);
     source.connect(analyser);
@@ -43,6 +51,7 @@ class SpeechCurrency {
       source,
       stream,
       speechData,
+      timeLeft: this.audioWindow,
     });
   }
 
@@ -100,11 +109,11 @@ Person 2: 2.5s;
 Person 3: 10s;
 
 
-The scaling proportion can work in two different ways.
+The scaling prop
+Person 3: 10s -> 100%;ortion can work in two different ways.
 Option 1 is by saying the audio window is the maximum scaling percentage. If you go over the audioWindow then you just stay at 100%
 Person 1: 2.5s -> 50%;
 Person 2: 5.0s -> 100%;
-Person 3: 10s -> 100%;
 
 Option 2 is by saying the scaling value of 100% is determined by whoever has the most speech in the room, everyone else is a percentage of that.
 Person 1: 2.5s -> 25%;
@@ -114,18 +123,5 @@ Person 4: 10s -> 100%;
 
 
 
-
-
-
-
-
-Could make Video Component "smart" or "dumb"
-Dumb
-- stream, local, scaling proportion, isTalking
-
-Smart
-- stream, local, AudioStyle?(Speech currency, or time based)
-
-If dumb then it should be easier to reuse the video component but then all of the logic of creating audio windows gets moved to the parent which is not ideal.
 
 */

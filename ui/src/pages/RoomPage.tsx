@@ -142,16 +142,12 @@ export function LoadedRoom({
   useEffect(() => {
     // need to set remote streams
     // We do not want to add multiple listeners every time the component re-renders
-    rtcPeerConnectionManager.listeners.push(() => {
+    rtcPeerConnectionManager.onChange.push(() => {
       setPeerConnections(rtcPeerConnectionManager.getPeerConnections());
     });
 
     return () => {
-      rtcPeerConnectionManager
-        .getPeerConnections()
-        .forEach((peerConnection) => {
-          rtcPeerConnectionManager.closePeerConnection(peerConnection.peerId);
-        });
+      rtcPeerConnectionManager.clear();
     };
   }, []);
 
@@ -187,16 +183,28 @@ export function LoadedRoom({
 
   useEffect(() => {
     let animationFrameId: number;
+    void speechCurrency.addUser({
+      peerId: socketClient.myConnectionId,
+      stream: localStream,
+    });
+    rtcPeerConnectionManager.onChange.push((event) => {
+      if (event.action === "join") {
+        void speechCurrency.addUser({
+          peerId: event.peerConnection.peerId,
+          stream: event.peerConnection.remoteMediaStream,
+        });
+      }
+      if (event.action === "leave") {
+        speechCurrency.removeUser(event.peerConnection.peerId);
+      }
+    });
+
     function infinitelyUpdateRoomScale() {
       const roomScale2 = speechCurrency.getRoomScale();
       setRoomScale(new Map(roomScale2));
       animationFrameId = requestAnimationFrame(infinitelyUpdateRoomScale);
     }
     infinitelyUpdateRoomScale();
-    speechCurrency.addUser({
-      peerId: socketClient.myConnectionId,
-      stream: localStream,
-    });
 
     return () => {
       if (animationFrameId) cancelAnimationFrame(animationFrameId);

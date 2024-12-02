@@ -163,6 +163,7 @@ export function LoadedRoom({
     socketClient.addMessageListener((message) => {
       if (message.action === "roomInfo") {
         setRoomInfo(message.data);
+        speechCurrency.setAudioWindow(message.data.audioWindow);
       }
     });
     socketClient.addMessageListener((message) => {
@@ -197,7 +198,6 @@ export function LoadedRoom({
       if (event.action === "leave") {
         speechCurrency.removeUser(event.peerConnection.peerId);
       }
-      speechCurrency.reset();
     });
 
     function infinitelyUpdateRoomScale() {

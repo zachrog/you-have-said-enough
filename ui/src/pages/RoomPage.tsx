@@ -238,6 +238,7 @@ export function LoadedRoom({
       const oldAudioTrack = localStream.getAudioTracks()[0];
       localStream.removeTrack(oldAudioTrack);
       localStream.addTrack(newAudioTrack);
+      speechCurrency.changeMic({ peerId: socketClient.myConnectionId });
       await Promise.all(
         rtcPeerConnectionManager
           .getPeerConnections()
@@ -251,7 +252,6 @@ export function LoadedRoom({
           })
       );
       oldAudioTrack.stop();
-      localStream.dispatchEvent(new Event("audioTrackAdded"));
     }
   }
 

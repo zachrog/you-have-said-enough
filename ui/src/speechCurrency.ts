@@ -54,6 +54,23 @@ class SpeechCurrency {
     });
   }
 
+  changeMic({ peerId }: { peerId: string }): void {
+    // Only the local stream should need this as remote streams do not have audio tracks changee.
+    const localUser = this.userMap.get(peerId);
+    if (!localUser) {
+      console.log("No local user to change mic for");
+      return;
+    }
+    const audioContext = new AudioContext();
+    const source = audioContext.createMediaStreamSource(localUser.stream);
+    const analyser = audioContext.createAnalyser();
+    analyser.fftSize = 2048;
+    source.connect(analyser);
+    localUser.audioContext = audioContext;
+    localUser.source = source;
+    localUser.analyser = analyser;
+  }
+
   removeUser(peerId: string) {
     const user = this.userMap.get(peerId);
     if (!user) {
@@ -84,7 +101,10 @@ class SpeechCurrency {
 
       const isTalking = average > 0.01;
       speakingUser.isTalking = isTalking;
-      if (!speakingUser.isTalking || speakingUser.timeLeft <= timeSinceLastSample) {
+      if (
+        !speakingUser.isTalking ||
+        speakingUser.timeLeft <= timeSinceLastSample
+      ) {
         return;
       }
 

@@ -327,36 +327,26 @@ export function LoadedRoom({
                 />
               ))} */}
           {localStream && (
-            <>
-              <VideoComponent
-                key={"local"}
-                stream={localStream}
-                local
-                isTalking={
-                  roomScale.get(socketClient.myConnectionId)?.isTalking || false
-                }
-                scalar={roomScale.get(socketClient.myConnectionId)?.scalar || 1}
-              />
-              <p>
-                timeLeft: {roomScale.get(socketClient.myConnectionId)?.timeLeft}
-              </p>
-            </>
+            <VideoComponent
+              key={"local"}
+              stream={localStream}
+              local
+              isTalking={
+                roomScale.get(socketClient.myConnectionId)?.isTalking || false
+              }
+              scalar={roomScale.get(socketClient.myConnectionId)?.scalar || 1}
+            />
           )}
           {peerConnections.map((remoteConnection) => {
             return (
-              <>
-                <VideoComponent
-                  stream={remoteConnection.remoteMediaStream}
-                  key={remoteConnection.peerId}
-                  isTalking={
-                    roomScale.get(remoteConnection.peerId)?.isTalking || false
-                  }
-                  scalar={roomScale.get(remoteConnection.peerId)?.scalar || 1}
-                />
-                <p>
-                  timeLeft: {roomScale.get(remoteConnection.peerId)?.timeLeft}
-                </p>
-              </>
+              <VideoComponent
+                stream={remoteConnection.remoteMediaStream}
+                key={remoteConnection.peerId}
+                isTalking={
+                  roomScale.get(remoteConnection.peerId)?.isTalking || false
+                }
+                scalar={roomScale.get(remoteConnection.peerId)?.scalar || 1}
+              />
             );
           })}
         </div>

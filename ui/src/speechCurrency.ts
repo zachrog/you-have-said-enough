@@ -11,7 +11,7 @@ export type SpeechUser = {
 };
 
 class SpeechCurrency {
-  audioWindow = 5000;
+  private audioWindow = 5000;
   private lastSpeechSample: number = 0;
   private userMap: Map<string, SpeechUser> = new Map();
   constructor() {}
@@ -21,6 +21,19 @@ class SpeechCurrency {
       user.audioContext.close().catch((e) => console.error(e));
     });
     this.userMap = new Map();
+  }
+
+  reset() {
+    this.userMap.forEach((user) => {
+      user.isTalking = false;
+      user.scalar = 1;
+      user.timeLeft = this.audioWindow;
+    });
+  }
+
+  setAudioWindow(audioWindow: number) {
+    this.audioWindow = audioWindow;
+    this.reset();
   }
 
   async addUser({ peerId, stream }: { peerId: string; stream: MediaStream }) {
@@ -54,23 +67,6 @@ class SpeechCurrency {
     });
   }
 
-  changeMic({ peerId }: { peerId: string }): void {
-    // Only the local stream should need this as remote streams do not have audio tracks changee.
-    const localUser = this.userMap.get(peerId);
-    if (!localUser) {
-      console.log("No local user to change mic for");
-      return;
-    }
-    const audioContext = new AudioContext();
-    const source = audioContext.createMediaStreamSource(localUser.stream);
-    const analyser = audioContext.createAnalyser();
-    analyser.fftSize = 2048;
-    source.connect(analyser);
-    localUser.audioContext = audioContext;
-    localUser.source = source;
-    localUser.analyser = analyser;
-  }
-
   removeUser(peerId: string) {
     const user = this.userMap.get(peerId);
     if (!user) {
@@ -80,6 +76,27 @@ class SpeechCurrency {
 
     user.audioContext.close().catch((e) => console.error(e));
     this.userMap.delete(peerId);
+  }
+
+  changeMic({ peerId }: { peerId: string }): void {
+    // Only the local stream should need this as remote streams do not have audio tracks changee.
+    const localUser = this.userMap.get(peerId);
+    if (!localUser) {
+      console.log("No local user to change mic for");
+      return;
+    }
+    const oldContext = localUser.audioContext;
+    const audioContext = new AudioContext();
+    const source = audioContext.createMediaStreamSource(localUser.stream);
+    const analyser = audioContext.createAnalyser();
+    analyser.fftSize = 2048;
+    source.connect(analyser);
+    localUser.audioContext = audioContext;
+    localUser.source = source;
+    localUser.analyser = analyser;
+    oldContext.close().catch((e) => {
+      console.error(e);
+    });
   }
 
   getRoomScale(): Map<string, SpeechUser> {

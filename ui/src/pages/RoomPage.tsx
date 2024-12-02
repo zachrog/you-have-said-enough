@@ -197,6 +197,7 @@ export function LoadedRoom({
       if (event.action === "leave") {
         speechCurrency.removeUser(event.peerConnection.peerId);
       }
+      speechCurrency.reset();
     });
 
     function infinitelyUpdateRoomScale() {
@@ -294,6 +295,7 @@ export function LoadedRoom({
       to: "",
     });
     setRoomInfo(newRoomInfo);
+    speechCurrency.setAudioWindow(newRoomInfo.audioWindow);
   }
 
   return (

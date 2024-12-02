@@ -240,7 +240,7 @@ function RoomSettings({
                   name="audioWindow"
                   step="any"
                   min="0"
-                  max="600"
+                  max="3600"
                   className="w-20 text-right"
                 />
                 <p className="ml-1">s</p>

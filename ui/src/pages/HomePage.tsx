@@ -8,19 +8,48 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export function HomePage() {
   const [roomId, setRoomId] = useState("");
+  const [titleScale, setTitleScale] = useState(1);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    let lastDirectionChange = 0;
+    let direction = 1;
+    const interval = setInterval(() => {
+      const timeSinceLastChange = performance.now() - lastDirectionChange;
+      if (timeSinceLastChange > 150) {
+        direction = Math.random() < 0.5 ? -1 : 1;
+        lastDirectionChange = performance.now();
+      }
+
+      setTitleScale((old) => {
+        let newScale = old + direction * 0.003;
+        newScale = Math.min(1, newScale);
+        newScale = Math.max(0.3, newScale);
+        return newScale;
+      });
+    }, 10);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <>
       <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-background">
         <div className="flex flex-col items-center justify-center space-y-6">
           <div className="flex items-center justify-center">
-            <h1 className="text-9xl">Zuumb</h1>
+            <h1
+              className="text-9xl"
+              style={{ transform: `scale(${titleScale})` }}
+            >
+              Zuumb
+            </h1>
           </div>
           <div className="w-full max-w-[600px] rounded-full border-white border-2 antialiased">
             <form
@@ -82,8 +111,8 @@ function CreatorInfo() {
               <br />
               <br />
               This whole project is open source so feel free to look at what we
-              threw together or copy it and make your own. Remember the goal was fun,
-              not pristine code.
+              threw together or copy it and make your own. Remember the goal was
+              fun, not pristine code.
             </p>
             <h3 className="text-lg font-semibold mb-2">Creators</h3>
             <div className="space-y-2">

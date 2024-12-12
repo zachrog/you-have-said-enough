@@ -16,7 +16,7 @@ import { useParams } from "react-router-dom";
 import clsx from "clsx";
 import { Room } from "server/src/entities/Room";
 import { DEFAULT_AUDIO_WINDOW } from "@/lib/audioStatistics";
-import { VideoComponent } from "@/components/VideoComponentDumb";
+import { VideoComponent } from "@/components/VideoComponent";
 import { speechCurrency, SpeechUser } from "@/speechCurrency";
 
 export function RoomPage() {

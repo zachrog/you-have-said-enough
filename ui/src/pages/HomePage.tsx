@@ -13,43 +13,14 @@ import { useNavigate } from "react-router-dom";
 
 export function HomePage() {
   const [roomId, setRoomId] = useState("");
-  const [titleScale, setTitleScale] = useState(1);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    let lastDirectionChange = 0;
-    let direction = 1;
-    const interval = setInterval(() => {
-      const timeSinceLastChange = performance.now() - lastDirectionChange;
-      if (timeSinceLastChange > 150) {
-        direction = Math.random() < 0.5 ? -1 : 1;
-        lastDirectionChange = performance.now();
-      }
-
-      setTitleScale((old) => {
-        let newScale = old + direction * 0.003;
-        newScale = Math.min(1, newScale);
-        newScale = Math.max(0.3, newScale);
-        return newScale;
-      });
-    }, 10);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
 
   return (
     <>
       <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-background">
         <div className="flex flex-col items-center justify-center space-y-6">
           <div className="flex items-center justify-center">
-            <h1
-              className="text-9xl"
-              style={{ transform: `scale(${titleScale})` }}
-            >
-              Zuumb
-            </h1>
+            <ZuumbLogo />
           </div>
           <div className="w-full max-w-[600px] rounded-full border-white border-2 antialiased">
             <form
@@ -83,6 +54,39 @@ export function HomePage() {
         <CreatorInfo />
       </div>
     </>
+  );
+}
+
+function ZuumbLogo() {
+  const [titleScale, setTitleScale] = useState(1);
+
+  useEffect(() => {
+    let lastDirectionChange = 0;
+    let direction = 1;
+    const interval = setInterval(() => {
+      const timeSinceLastChange = performance.now() - lastDirectionChange;
+      if (timeSinceLastChange > 150) {
+        direction = Math.random() < 0.5 ? -1 : 1;
+        lastDirectionChange = performance.now();
+      }
+
+      setTitleScale((old) => {
+        let newScale = old + direction * 0.003;
+        newScale = Math.min(1, newScale);
+        newScale = Math.max(0.3, newScale);
+        return newScale;
+      });
+    }, 10);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  return (
+    <h1 className="text-9xl" style={{ transform: `scale(${titleScale})` }}>
+      Zuumb
+    </h1>
   );
 }
 
